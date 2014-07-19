@@ -1,0 +1,215 @@
+{
+    "dependencies": {
+        "fs": "fs",
+        "htmlEntities": "html-entities",
+        "iconv": "iconv-lite",
+        "irc": "irc",
+        "moment": "moment",
+        "request": "request",
+        "parseXml": "xml2js"
+    },
+    "settings": {
+        "server": "YourServer",
+        "name": "YourNick",
+        "namePassword": "YourNickservPasswird",
+        "admins": [
+            "YourNick"
+        ],
+        "channels": [
+            "YourChannel",
+        ],
+        "users": [
+        ],
+        "defaultBot": "YourOtherBot",
+        "symbol": "!",
+        "commands": [
+            {
+                "name": "weather",
+                "function": "getWeather",
+                "minArgs": 1,
+                "commands": [
+                    {
+                        "command": "w",
+                        "symbol": true,
+                        "exclusive": false
+                    },
+                    {
+                        "command": "weather",
+                        "symbol": true,
+                        "exclusive": false
+                    },
+                    {
+                        "command": "s",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": "snow",
+                        "symbol": true,
+                        "exclusive": true
+                    }
+                ]
+            },
+            {
+                "name": "video",
+                "function": "getVideo",
+                "minArgs": 1,
+                "commands": [
+                    {
+                        "command": "v",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": "video",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": "yt",
+                        "symbol": true,
+                        "exclusive": false
+                    },
+                    {
+                        "command": "youtube",
+                        "symbol": true,
+                        "exclusive": false
+                    }
+                ]
+            },
+            {
+                "name": "translate",
+                "function": "getTranslation",
+                "minArgs": 2,
+                "commands": [
+                    {
+                        "command": "t",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": "translate",
+                        "symbol": true,
+                        "exclusive": true
+                    }
+                ]
+            },
+            {
+                "name": "boobs",
+                "function": "getBoobs",
+                "minArgs": 0,
+                "commands": [
+                    {
+                        "command": "boobs",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".boobs",
+                        "symbol": false,
+                        "exclusive": false
+                    },
+                    {
+                        "command": "tits",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".tits",
+                        "symbol": false, 
+                        "exclusive": false
+                    }
+                ]
+            },
+            {
+                "name": "butt",
+                "function": "getButt",
+                "minArgs": 0,
+                "commands": [
+                    {
+                        "command": "butt",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".butt",
+                        "symbol": false,
+                        "exclusive": false
+                    },
+                    {
+                        "command": "ass",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".ass",
+                        "symbol": false, 
+                        "exclusive": false
+                    }
+                ]
+            },
+            {
+                "name": "dubs",
+                "function": "getDubs",
+                "minArgs": 0,
+                "commands": [
+                    {
+                        "command": "dubs",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".dubs",
+                        "symbol": false,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ":dubs",
+                        "symbol": false,
+                        "exclusive": false
+                    }
+                ]
+            },
+            {
+                "name": "8ball",
+                "function": "getEightBall",
+                "minArgs": 0,
+                "commands": [
+                    {
+                        "command": "8ball",
+                        "symbol": true,
+                        "exclusive": true
+                    },
+                    {
+                        "command": ".8ball",
+                        "symbol": false,
+                        "exclusive": false
+                    },
+                    {
+                        "command": ":8ball",
+                        "symbol": false,
+                        "exclusive": true
+                    }
+                ]
+            }
+        ]
+    },
+    "apis": {
+        "google": {
+            "key": "YourKey"
+        },
+        "forecast": {
+            "key": "YourKey"
+        },
+        "microsoft": {
+            "id": "YourId",
+            "secret": "YourSecret"
+        }
+    },
+    "thread": {
+        "board": "YourBoard",
+        "subject": "YourSubject",
+        "lastThread": "0",
+        "lastPost": "0"
+    }
+}

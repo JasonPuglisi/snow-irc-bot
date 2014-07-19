@@ -128,25 +128,25 @@ The translate command uses Microsoft Translator to translate the specified text 
 
 ## Boobs
 
-> ```!boobs```
+> `!boobs`
 
-> ```.boobs```
+> `.boobs`
 
-> ```!tits```
+> `!tits`
 
-> ```.tits```
+> `.tits`
 
 __[NSFW]__ The boobs command fetches an image of a pair of boobs and announces the link.
 
 ## Butt
 
-> ```!butt```
+> `!butt`
 
-> ```.butt```
+> `.butt`
 
-> ```!ass```
+> `!ass`
 
-> ```.ass```
+> `.ass`
 
 __[NSFW]__ The ass command fetches an image of a butt and announces the link.
 

@@ -148,7 +148,7 @@ __[NSFW]__ The boobs command fetches an image of a pair of boobs and announces t
 
 > `.ass`
 
-__[NSFW]__ The ass command fetches an image of a butt and announces the link.
+__[NSFW]__ The butt command fetches an image of a butt and announces the link.
 
 ## Dubs
 

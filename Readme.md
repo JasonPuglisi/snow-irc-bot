@@ -66,7 +66,7 @@ Navigate to the ```settings -> commands``` section of the configuration file. Th
 
 - ```name```: The friendly name of each command. These values are not used anywhere in the code, and can be modified freely. It's recommended to leave them as default for easy reference.
 - ```function```: The function executed for each command. These should be left as default unless the function names are specifically changed in the code.
-- ```minArgs```: The minimum number of arguments that may be specified along with a command. These values should be left as default unless code is changed to require greater or fewer arguments.
+- ```minArgs```: The minimum number of arguments that may be specified along with a command. These values should be left as default unless code is changed to require more or fewer arguments.
 - ```commands```: Information for each input that executes the command. These entries can be added, removed, or modified freely.
     - ```command```: The text input that executes the command.
     - ```symbol```: Whether the the default command symbol must be prepended to the beginning of the command text. This should be ```true``` if your command text does not have a custom symbol, and ```false``` if it does.
@@ -104,7 +104,7 @@ The following commands can be executed by any user in any IRC channel. These are
 
 > ```!snow ...```
 
-The weather command announces the weather for the specified location in both fahrenheit and celsius, as well as the local time for the specified location. If the today option is included, the command announces a weather summary for the day, with temperature highs and lows. If the tomorrow option is included, the command announcers a weather summary for the next day, with temperature highs and lows. If the week option is included, the command announcer a weather summary for the week.
+The weather command announces the weather for the specified location in both fahrenheit and celsius, as well as the local time for the specified location. If the today option is included, the command announces a weather summary for the day, with temperature highs and lows. If the tomorrow option is included, the command announces a weather summary for the next day, with temperature highs and lows. If the week option is included, the command announces a weather summary for the week.
 
 ## Video
 
@@ -178,13 +178,13 @@ These are extra features that may not be needed for your bot's purposes. They ca
 
 The Curse to Bless Converter converts all forms of the word ```curse``` in a channel message to their respective forms of the word ```bless``` and announces the result. It does so automatically and without any input from the user.
 
-The converter also detects and converts reversed text forms of the word ```curse```to reversed text forms of the word ```bless```. If a channel message matches ```!curse``` exactly, an image is appended to the response in dedication to the user who inspired the feature.
+The converter also detects and converts reversed text forms of the word ```curse``` to reversed text forms of the word ```bless```. If a channel message matches ```!curse``` exactly, an image is appended to the response in dedication to the user who inspired this feature.
 
 This feature can be disabled by deleting the ```if (curse)``` code block under ```Convert curse instances to bless instances``` in the main code file ```snow.js```.
 
 ## 4chan Thread Watcher
 
-The 4chan Thread Watcher keeps track of the most recent 4chan thread beginning subject and on the board specified in the configuration file. For each new post in each new thread, it checks for instances of all nick names in the default IRC channel. If any are found, the user is notified through an announcement with the corresponding post link.
+The 4chan Thread Watcher keeps track of the most recent 4chan thread beginning with the subject and on the board specified in the configuration file. For each new post in the, it checks for instances of all nick names in the default IRC channel. If any are found, the user is notified through an announcement with the corresponding post link.
 
 By default, an updated thread is fetched every minute. This millisecond time value can be changed under ```Run thread check again after specified pause``` in the main code file ```snow.js```. Note that the 4chan API rules state that you may update threads no more than once every 10 seconds.
 

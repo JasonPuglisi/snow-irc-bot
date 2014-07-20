@@ -62,7 +62,7 @@ Navigate to the ```settings``` section of the configuration file. The following 
 
 ## Commands
 
-Navigate to the ```settings -> commands``` section of the configuration file. The following entries may be left as default of configured as needed.
+Navigate to the ```settings -> commands``` section of the configuration file. The following entries may be left as default or configured as needed.
 
 - ```name```: The friendly name of each command. These values are not used anywhere in the code, and can be modified freely. It's recommended to leave them as default for easy reference.
 - ```function```: The function executed for each command. These should be left as default unless the function names are specifically changed in the code.

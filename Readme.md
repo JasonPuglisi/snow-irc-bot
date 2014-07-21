@@ -197,6 +197,12 @@ The join command joins the specified channel. The bot must not be in the specifi
 
 The part command parts the specified channel. The bot must be in the specified channel.
 
+## Nick
+
+> ```nick <nick>```
+
+The nick command changes the bot's nick to the specified nick. Before using this, make sure that the nick is not in use already and is not registered by NickServ, or your server's equivalent.
+
 # Extra Features
 
 These are extra features that may not be needed for your bot's purposes. They can be disabled by deleting the code specified in each section.

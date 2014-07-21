@@ -150,6 +150,7 @@ client.addListener('pm', function (nick, text, message) {
 	var actCmd = 'act';
 	var joinCmd = 'join';
 	var partCmd = 'part';
+	var nickCmd = 'nick';
 
 	// Execute private message commands
 	if (isAdmin) {
@@ -161,8 +162,9 @@ client.addListener('pm', function (nick, text, message) {
 		var isValidChannel = channels.indexOf(chan) !== -1;
 		var isValidChannelJoin = channels.indexOf(chan) === -1 && chan.length > 1 && chan.charAt(0) === '#';
 
-		// Set invalid channel message
+		// Set invalid message
 		var invalidMsg = 'The channel\' ' + chan + '\' is not valid';
+		var invalidMsgNick = 'The nick\' ' + chan + '\' is not valid';
 
 		// Check if command is say
 		var isSayCmd = cmd === sayCmd && args.length > 1;
@@ -210,6 +212,23 @@ client.addListener('pm', function (nick, text, message) {
 			}
 			else
 				client.say(nick, invalidMsg);
+		}
+
+		// Check if command is nick
+		var isNickCmd = cmd === nickCmd && args.length > 0;
+
+		// Change to specified nick
+		if (isNickCmd) {
+			var toNick = chan;
+
+			try {
+				client.send('NICK', toNick);
+			}
+			catch (error) {
+				client.say(nick, invalidMsgNick);
+				console.log('Nick Error:');
+				console.log(error);
+			}
 		}
 	}
 });

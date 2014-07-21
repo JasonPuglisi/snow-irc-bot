@@ -43,9 +43,6 @@ client.addListener('registered', function (message) {
 		for (var i = 0; i < channels.length; i++)
 			client.join(channels[i]);
 	}, 250);
-
-	// Start thread checker
-	checkThread();
 });
 
 // Channel Message Listener
@@ -212,6 +209,13 @@ client.addListener('pm', function (nick, text, message) {
 				client.say(nick, invalidMsg);
 		}
 	}
+});
+
+// Error listener
+client.addListener('error', function (message) {
+	// Log error to console
+	console.log('Error:');
+	console.log(message);
 });
 
 // Names Listener

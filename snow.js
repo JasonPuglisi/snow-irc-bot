@@ -159,7 +159,7 @@ client.addListener('pm', function (nick, text, message) {
 		var isValidChannelJoin = channels.indexOf(chan) === -1 && chan.length > 1 && chan.charAt(0) === '#';
 
 		// Set invalid channel message
-		var invalidMsg = 'The channel\'' + chan + '\' is not valid';
+		var invalidMsg = 'The channel\' ' + chan + '\' is not valid';
 
 		// Check if command is say
 		var isSayCmd = cmd === sayCmd && args.length > 1;

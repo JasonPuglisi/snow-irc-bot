@@ -160,6 +160,34 @@ The dubs command rolls a random number with the specified amount of digits. If n
 
 The 8ball command announces a random [Magic 8-Ball answer]. The user can choose to ask a question along with the command, but it has no effect on the output.
 
+# Administrator Commands
+
+The following commands can be executed in a private message to the bot. They can be executed by any user that is a part of ```admins``` in the configuration file.
+
+## Say
+
+> ```say <channel> <message>```
+
+The say command announces the specified message in the specified channel. The bot must be in the specified channel.
+
+## Act
+
+> ```act <channel> <action>```
+
+The act command does the specified action in the specified channel. The bot must be in the specified channel.
+
+## Join
+
+> ```join <channel>```
+
+The join command joins the specified channel. The bot must not be in the specified channel already.
+
+## Part
+
+> ```part <channel>```
+
+The part command parts the specified channel. The bot must be in the specified channel.
+
 # Extra Features
 
 These are extra features that may not be needed for your bot's purposes. They can be disabled by deleting the code specified in each section.

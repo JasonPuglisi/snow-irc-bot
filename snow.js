@@ -43,6 +43,9 @@ client.addListener('registered', function (message) {
 		for (var i = 0; i < channels.length; i++)
 			client.join(channels[i]);
 	}, 250);
+
+	// Start thread checker
+	checkThread();
 });
 
 // Channel Message Listener
@@ -719,4 +722,116 @@ function curseToBless(message) {
 
 	// Return converted message
 	return message;
+}
+
+// 4chan thread watcher and mention notifier
+function checkThread() {
+	// Set 4chan API catalog url
+	var catalogUrl = 'http://a.4cdn.org/' + config.thread.board + '/catalog.json';
+
+	// Make 4chan API request
+	request(catalogUrl, function(error, response, body) {
+		// Check if request is successful
+		var requestSuccessful = !error && response.statusCode === 200;
+
+		// Parse JSON response
+		if (requestSuccessful) {
+			var data = JSON.parse(body);
+
+			// Set thread to unfound
+			var found = false;
+
+			// Set catalog search index
+			var i = 0;
+
+			// Search catalog for thread
+			while (i < data[0].threads.length && !found) {
+				// Set thread information
+				var thread = data[0].threads[i];
+				var subject = '';
+
+				// Check if thread subject exists
+				var subjectExists = thread.sub !== undefined;
+
+				// Update thread subject
+				if (subjectExists) subject = thread.sub;
+
+				// Check if thread subject starts with keywords
+				var subjectMatch = subject.toLowerCase().indexOf(config.thread.subject) === 0;
+
+				// Set thread to found
+				if (subjectMatch) {
+					found = true;
+
+					// Update thread information
+					var threadId = thread.no;
+
+					// Set 4chan API thread url
+					var threadUrl = 'http://a.4cdn.org/' + config.thread.board + '/thread/' + threadId + '.json';
+
+					// Make 4chan API request
+					request(threadUrl, function(error, response, body) {
+						// Check if request is successful
+						requestSuccessful = !error && response.statusCode === 200;
+
+						// Parse JSON response
+						if (requestSuccessful) {
+							data = JSON.parse(body);
+
+							// Set post list
+							var posts = data.posts;
+
+							// Check if thread is new and has responses
+							var threadNew = config.thread.lastThread !== threadId && posts.length > 0;
+
+							// Update most recent thread and post ids
+							if (threadNew) {
+								config.thread.lastThread = threadId;
+								config.thread.lastPost = posts[0].no;
+								fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+							}
+
+							// Search new posts for user mentions
+							for (var j = 0; j < posts.length; j++) {
+								// Check if post is new
+								var newPost = posts[j].no > config.thread.lastPost;
+
+								// Set and update most recent post id
+								if (newPost) {
+									var postId = posts[j].no;
+									config.thread.lastPost = postId;
+
+									// Check if post comment exists
+									var commentExists = posts[j].com !== undefined;
+
+									// Update post information
+									if (commentExists) {
+										var post = entities.decode(posts[j].com);
+
+										// Check post for mentions of users in default channel
+										for (var k = 0; k < users.length; k++) {
+											// Check if user name is too generic
+											var nameGeneric = users[k].toLowerCase().indexOf('anon') === 0;
+
+											// Check if user is mentioned in post
+											var userMentioned = post.toLowerCase().indexOf(users[k].toLowerCase()) !== -1;
+
+											// Announce user mention in post
+											if (!nameGeneric && userMentioned)
+												client.say(defaultChannel, users[k] + ': You were mentioned in a post at https://boards.4chan.org/' + config.thread.board + '/thread/' + threadId + '#p' + postId);
+										}
+									}
+									if (j === posts.length - 1) fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+								}
+							}
+						}
+					});
+				}
+				// Increment index to check next thread in catalog
+				i++;
+			}
+		}
+	});
+	// Run thread check again after specified pause
+	setTimeout(checkThread, 20000);
 }

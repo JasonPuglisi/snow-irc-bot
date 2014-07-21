@@ -153,53 +153,64 @@ client.addListener('pm', function (nick, text, message) {
 
 	// Execute private message commands
 	if (isAdmin) {
-		// Channel message command
-		if (cmd === sayCmd && args.length > 1) {
-			var chan = args[0];
-			var isValidChannel = channels.indexOf(chan) !== -1;
-			var msg = args.slice(1).join(' ');
-			if (isValidChannel) client.say(chan, msg);
-			else client.say(nick, 'The channel \'' + chan + '\' is not valid');
+		// Set channel and message
+		var chan = args[0];
+		var msg = args.slice(1).join(' ');
+
+		// Check if channel is valid
+		var isValidChannel = channels.indexOf(chan) !== -1;
+		var isValidChannelJoin = channels.indexOf(chan) === -1 && chan.length > 1 && chan.charAt(0) === '#';
+
+		// Set invalid channel message
+		var invalidMsg = 'The channel\'' + chan + '\' is not valid';
+
+		// Check if command is say
+		var isSayCmd = cmd === sayCmd && args.length > 1;
+
+		// Announce specified message in specified channel
+		if (isSayCmd) {
+			if (isValidChannel)
+				client.say(chan, msg);
+			else
+				client.say(nick, invalidMsg);
 		}
 
-		// Channel act command
-		else if (cmd === actCmd && args.length > 1) {
-			var chan = args[0];
-			var isValidChannel = channels.indexOf(chan) !== -1;
-			var msg = args.slice(1).join(' ');
-			if (isValidChannel) client.action(chan, msg);
-			else client.say(nick, 'The channel \'' + chan + '\' is not valid');
+		// Check if command is act
+		var isActCmd = cmd === actCmd && args.length > 1;
+
+		// Do specified action in specified channel
+		if (isActCmd) {
+			if (isValidChannel)
+				client.action(chan, msg);
+			else
+				client.say(nick, invalidMsg);
 		}
 
-		// Channel join command
-		else if (cmd === joinCmd && args.length > 0) {
-			var chan = args[0];
-			var isValidChannel = channels.indexOf(chan) === -1 && chan.length > 1 && chan.charAt(0) === '#';
-			if (isValidChannel) {
+		// Check if command is join
+		var isJoinCmd = cmd === joinCmd && args.length > 0;
+
+		// Join specified channel
+		if (isJoinCmd) {
+			if (isValidChannelJoin) {
 				channels.push(chan);
 				client.join(chan);
 			}
-			else client.say(nick, 'The channel \'' + chan + '\' is not valid');
+			else
+				client.say(nick, invalidMsg);
 		}
 
-		// Channel part command
-		else if (cmd === partCmd && args.length > 0) {
-			var chan = args[0];
-			var isValidChannel = channels.indexOf(chan) !== -1;
+		// Check if command is part
+		var isPartCmd = cmd === partCmd && args.length > 0;
+
+		// Part specified channel
+		if (isPartCmd) {
 			if (isValidChannel) {
 				channels.splice(channels.indexOf(chan), 1);
 				client.part(chan, 'Leaving channel');
 			}
-			else client.say(nick, 'The channel \'' + chan + '\' is not valid');
+			else client.say(nick, invalidMsg);
 		}
 	}
-});
-
-// Error listener
-client.addListener('error', function (message) {
-	// Log error to console
-	console.log('[!] ERROR [!]');
-	console.log(message);
 });
 
 // Names Listener

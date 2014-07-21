@@ -205,11 +205,5 @@
             "id": "YourId",
             "secret": "YourSecret"
         }
-    },
-    "thread": {
-        "board": "YourBoard",
-        "subject": "YourSubject",
-        "lastThread": "0",
-        "lastPost": "0"
     }
 }

@@ -208,7 +208,8 @@ client.addListener('pm', function (nick, text, message) {
 				channels.splice(channels.indexOf(chan), 1);
 				client.part(chan, 'Leaving channel');
 			}
-			else client.say(nick, invalidMsg);
+			else
+				client.say(nick, invalidMsg);
 		}
 	}
 });

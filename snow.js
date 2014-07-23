@@ -267,7 +267,7 @@ client.addListener('part', function (channel, nick, reason, message) {
 
 	// Remove user from default channel users
 	if (isDefault)
-		users.splice(users.indexOf(nick), 1);
+		users = users.splice(users.indexOf(nick), 1);
 });
 
 /* COMMAND FUNCTIONS */

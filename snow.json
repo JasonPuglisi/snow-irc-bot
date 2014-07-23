@@ -209,7 +209,7 @@
     "thread": {
         "board": "YourBoard",
         "subject": "YourSubject",
-        "lastThread": "0",
-        "lastPost": "0"
+        "lastThread": 0,
+        "lastPost": 0
     }
 }

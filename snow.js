@@ -207,6 +207,7 @@ client.addListener('pm', function (nick, text, message) {
 
 			try {
 				client.send('NICK', toNick);
+				name = toNick;
 			}
 			catch (error) {
 				client.say(nick, invalidMsgNick);

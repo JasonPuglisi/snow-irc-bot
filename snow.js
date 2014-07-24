@@ -255,6 +255,18 @@ client.addListener('part', function (channel, nick, reason, message) {
 		users.splice(users.indexOf(nick), 1);
 });
 
+// Raw Listener
+client.addListener('raw', function (message) {
+	// Check if raw command is nick
+	var nickChange = message.command.toLowerCase() === 'nick';
+
+	// Update user list
+	if (nickChange) {
+		users.splice(users.indexOf(message.nick));
+		users.push(message.args[0]);
+	}
+});
+
 /* COMMAND FUNCTIONS */
 
 // Get weather for specified location in specified time period
@@ -874,7 +886,7 @@ function checkThread() {
 										// Check post for mentions of users in default channel
 										for (var k = 0; k < users.length; k++) {
 											// Check if user name is too generic
-											var nameGeneric = users[k].toLowerCase().indexOf('anon') === 0;
+											var nameGeneric = users[k].toLowerCase().indexOf('anon') === 0 || users[k].length < 3;
 
 											// Check if user is mentioned in post
 											var userMentioned = post.toLowerCase().indexOf(users[k].toLowerCase()) !== -1;

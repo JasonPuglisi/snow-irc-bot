@@ -11,11 +11,12 @@ Snow IRC Bot relies on the following Node Package Manager dependencies to run.
 - html-entities
 - iconv-lite
 - irc
+- jsmegahal
 - moment
 - request
 - xml2js
 
-To install these dependencies, make sure you have Node.js and NPM installed. Then run ```npm install html-entities iconv-lite irc moment request xml2js```.
+To install these dependencies, make sure you have Node.js and NPM installed. Then run ```npm install html-entities iconv-lite irc jsmegahal moment request xml2js```.
 
 To verify that you have the latest versions of these dependencies, run ```npm update```.
 
@@ -207,13 +208,21 @@ The nick command changes the bot's nick to the specified nick. Before using this
 
 These are extra features that may not be needed for your bot's purposes. They can be disabled by deleting the code specified in each section.
 
+## Sentience
+
+As Snow IRC Bot spends time in IRC, it will save what users say in its brain file ```snow.txt```. If a channel message begins with the bot's name, followed by a space, it will announce a response based on the message and chat history. The more it hears, the more it learns.
+
+It's best to start off with a blank brain flie, but you can add to your bot's brain manually by adding individual sentences with punctuation. Just make sure to leave a space at the end of the file if you edit it yourself.
+
+This feature can be disabled by deleting the line under ```Check for brain response``` in the main code file ```snow.js```.
+
 ## Curse to Bless Converter
 
 The Curse to Bless Converter converts all forms of the word ```curse``` in a channel message to their respective forms of the word ```bless``` and announces the result. It does so automatically and without any input from the user.
 
 The converter also detects and converts reversed text forms of the word ```curse``` to reversed text forms of the word ```bless```. If a channel message matches ```!curse``` exactly, an image is appended to the response in dedication to the user who inspired this feature.
 
-This feature can be disabled by deleting the ```if (curse)``` code block under ```Convert curse instances to bless instances``` in the main code file ```snow.js```.
+This feature can be disabled by deleting the line under ```Check for curse response``` in the main code file ```snow.js```.
 
 ## 4chan Thread Watcher
 

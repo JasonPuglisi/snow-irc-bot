@@ -4,6 +4,8 @@
 var configFile = 'snow.json';
 var config = require('./' + configFile);
 
+var brainFile = 'snow.txt';
+
 // Dependencies
 for (var i in config.dependencies)
 	global[i] = require(config.dependencies[i]);
@@ -30,6 +32,11 @@ var client = new irc.Client(server, name, {
 	secure: true,
 	selfSigned: true
 });
+
+// JSMegaHAL configuration
+var megahal = new jsmegahal(4);
+
+megahal.addMass(fs.readFileSync(brainFile, 'utf8'));
 
 /* IRC LISTENERS */
 
@@ -105,34 +112,11 @@ client.addListener('message#', function (nick, to, text, message) {
 		}
 	}
 
-	// Check if main admin is in default channel
-	var mainAdminPresent = users.indexOf(admins[0]) !== -1;
+	// Check for brain respose
+	checkBrain(to, text);
 
-	// Log channel message to console
-	if (!mainAdminPresent) console.log('[' + to + '] ' + nick + ': ' + text);
-
-	// Set curse keywords
-	var curses = ['curse', 'cursing'];
-
-	// Assume no curse present in message
-	var curse = false;
-
-	// Check if curse is present in message
-	for (var i in curses) {
-		var curseFound = text.toLowerCase().indexOf(curses[i]) !== -1;
-		var reverseCurseFound = text.toLowerCase().split('').reverse().join('').indexOf(curses[i]) !== -1;
-
-		// Set curse present in message
-		if (curseFound || reverseCurseFound)
-			curse = true;
-	}
-
-	// Convert curse instances to bless instances
-	if (curse) {
-		var output = text;
-		for (var i = 0; i < 2; i++) output = curseToBless(output.split('').reverse().join(''));
-		client.say(to, output);
-	}
+	// Check for curse response
+	checkCurse(to, text); 
 });
 
 // Private Message Listener
@@ -673,6 +657,65 @@ function toCelsius(fahrenheit) {
 
 	// Return celsius value
 	return celsius;
+}
+
+// Add message to brain and respond to mention
+function checkBrain(to, text) {
+	// Check if name is at beginning of message
+	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0;
+
+	// Respond to directed message
+	if (toName) {
+		client.say(to, megahal.getReplyFromSentence(text.substring(name.length + 1)));
+	}
+	else {
+		// Set last character of message
+		var textEnd = text.charAt(text.length - 1);
+
+		// Check if character is punctuation
+		var hasPunctuation = textEnd === '.' || textEnd === '!' || textEnd === '?';
+
+		// Set brain file log message punctuation
+		if (!hasPunctuation) text += '.';
+
+		// Add log to brain file
+		fs.appendFile(brainFile, text + ' ', function (error) {
+			// Log error to console
+			if (error) {
+				console.log('Log Error:');
+				console.log(error);
+			}
+		});
+
+		// Add log to JSMegaHal
+		megahal.add(text);
+	}
+}
+
+// Check for curses in message and do conversions
+function checkCurse(to, text) {
+	// Set curse keywords
+	var curses = ['curse', 'cursing'];
+
+	// Assume no curse present in message
+	var curse = false;
+
+	// Check if curse is present in message
+	for (var i in curses) {
+		var curseFound = text.toLowerCase().indexOf(curses[i]) !== -1;
+		var reverseCurseFound = text.toLowerCase().split('').reverse().join('').indexOf(curses[i]) !== -1;
+
+		// Set curse present in message
+		if (curseFound || reverseCurseFound)
+			curse = true;
+	}
+
+	// Convert curse instances to bless instances
+	if (curse) {
+		var output = text;
+		for (var i = 0; i < 2; i++) output = curseToBless(output.split('').reverse().join(''));
+		client.say(to, output);
+	}
 }
 
 // Convert curse instances to bless instances

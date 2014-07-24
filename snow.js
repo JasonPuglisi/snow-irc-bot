@@ -33,6 +33,8 @@ var client = new irc.Client(server, name, {
 	selfSigned: true
 });
 
+users = [];
+
 // JSMegaHAL configuration
 var megahal = new jsmegahal(4);
 
@@ -113,7 +115,7 @@ client.addListener('message#', function (nick, to, text, message) {
 	}
 
 	// Check for brain respose
-	checkBrain(to, text);
+	checkBrain(nick, to, text);
 
 	// Check for curse response
 	checkCurse(to, text); 
@@ -261,10 +263,8 @@ client.addListener('raw', function (message) {
 	var nickChange = message.command.toLowerCase() === 'nick';
 
 	// Update user list
-	if (nickChange) {
-		users.splice(users.indexOf(message.nick));
-		users.push(message.args[0]);
-	}
+	if (nickChange)
+		users.splice(users.indexOf(message.nick), 1, message.args[0]);
 });
 
 /* COMMAND FUNCTIONS */
@@ -673,36 +673,40 @@ function toCelsius(fahrenheit) {
 }
 
 // Add message to brain and respond to mention
-function checkBrain(to, text) {
+function checkBrain(nick, to, text) {
 	// Check if name is at beginning of message
 	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0;
+
+	// Check if message should be added to brain
+	var shouldAdd = nick.toLowerCase() !== defaultBot.toLowerCase() && text.indexOf(symbol) !== 0;
 
 	// Respond to directed message
 	if (toName) {
 		client.say(to, megahal.getReplyFromSentence(text.substring(name.length + 1)));
 	}
-	else {
-		// Set last character of message
-		var textEnd = text.charAt(text.length - 1);
+	else
+		if (shouldAdd) {
+			// Set last character of message
+			var textEnd = text.charAt(text.length - 1);
 
-		// Check if character is punctuation
-		var hasPunctuation = textEnd === '.' || textEnd === '!' || textEnd === '?';
+			// Check if character is punctuation
+			var hasPunctuation = textEnd === '.' || textEnd === '!' || textEnd === '?';
 
-		// Set brain file log message punctuation
-		if (!hasPunctuation) text += '.';
+			// Set brain file log message punctuation
+			if (!hasPunctuation) text += '.';
 
-		// Add log to brain file
-		fs.appendFile(brainFile, text + ' ', function (error) {
-			// Log error to console
-			if (error) {
-				console.log('Log Error:');
-				console.log(error);
-			}
-		});
+			// Add log to brain file
+			fs.appendFile(brainFile, text + ' ', function (error) {
+				// Log error to console
+				if (error) {
+					console.log('Log Error:');
+					console.log(error);
+				}
+			});
 
-		// Add log to JSMegaHal
-		megahal.add(text);
-	}
+			// Add log to JSMegaHal
+			megahal.add(text);
+		}
 }
 
 // Check for curses in message and do conversions

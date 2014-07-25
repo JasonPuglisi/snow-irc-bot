@@ -52,6 +52,40 @@
 				]
 			},
 			{
+				"name": "fahrenheit",
+				"function": "getFahrenheit",
+				"minArgs": 1,
+				"commands": [
+					{
+						"command": "f",
+						"symbol": true,
+						"exclusive": true
+					},
+					{
+						"command": "fahrenheit",
+						"symbol": true,
+						"exclusive": true
+					}
+				]
+			},
+			{
+				"name": "celsius",
+				"function": "getCelsius",
+				"minArgs": 1,
+				"commands": [
+					{
+						"command": "c",
+						"symbol": true,
+						"exclusive": true
+					},
+					{
+						"command": "celsius",
+						"symbol": true,
+						"exclusive": true
+					}
+				]
+			},
+			{
 				"name": "video",
 				"function": "getVideo",
 				"minArgs": 1,

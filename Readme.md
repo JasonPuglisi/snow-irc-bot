@@ -106,6 +106,22 @@ The following commands can be executed by any user in any IRC channel. These are
 
 The weather command announces the weather for the specified location in both fahrenheit and celsius, as well as the local time for the specified location. If the today option is included, the command announces a weather summary for the day, with temperature highs and lows. If the tomorrow option is included, the command announces a weather summary for the next day, with temperature highs and lows. If the week option is included, the command announces a weather summary for the week.
 
+## Fahrenheit
+
+> ```!f <celsius>```
+
+> ```!fahrenheit <celsius>```
+
+The fahrenheit command announces the fahrenheit conversion of the specified celsius temperature. It also includes the original celsius temperature for reference.
+
+## Celsius
+
+> ```!c <fahrenheit>```
+
+> ```!celsius <fahrenheit>```
+
+The celsius command announces the celsius conversion of the specified fahrenheit temperature. It also includes the orginal fahrenheit temperature for reference.
+
 ## Video
 
 > ```!v <video>```

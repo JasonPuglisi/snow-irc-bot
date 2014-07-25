@@ -433,6 +433,30 @@ global.getWeather = function getWeather(nick, to, text, message, msg, cmd, args,
 	});
 }
 
+// Get fahrenheit temperature from specified celsius temperature
+global.getFahrenheit = function getFahrenheit(nick, to, text, message, msg, cmd, args, prefix) {
+	// Set celsius temperature
+	var celsius = args[0];
+
+	// Set fahrenheit temperature
+	var fahrenheit = toFahrenheit(celsius);
+
+	// Announce fahrenheit temperature
+	client.say(to, prefix + Math.round(fahrenheit) + '°F (' + Math.round(celsius) + '°C)')
+}
+
+// Get celsius temperature from specified fahrenheit temperature
+global.getCelsius = function getCelsius(nick, to, text, message, msg, cmd, args, prefix) {
+	// Set fahrenheit temperature
+	var fahrenheit = args[0];
+
+	// Set celsius temperature
+	var celsius = toCelsius(fahrenheit);
+
+	// Announce celsius temperature
+	client.say(to, prefix + Math.round(celsius) + '°C (' + Math.round(fahrenheit) + '°F)')
+}
+
 // Get specified video from YouTube
 global.getVideo = function getVideo(nick, to, text, message, msg, cmd, args, prefix) {
 	// Decode input and set video

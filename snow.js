@@ -678,7 +678,7 @@ function checkBrain(nick, to, text) {
 	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0;
 
 	// Check if message should be added to brain
-	var shouldAdd = nick.toLowerCase() !== defaultBot.toLowerCase() && text.indexOf(symbol) !== 0;
+	var shouldAdd = nick.toLowerCase() !== defaultBot.toLowerCase() && text.indexOf(symbol) !== 0 && to === defaultChannel;
 
 	// Respond to directed message
 	if (toName) {

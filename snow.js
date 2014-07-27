@@ -699,7 +699,7 @@ function toCelsius(fahrenheit) {
 // Add message to brain and respond to mention
 function checkBrain(nick, to, text) {
 	// Check if name is at beginning of message
-	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0;
+	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0 || text.toLowerCase().indexOf(name.toLowerCase() + ', ') === 0;
 
 	// Check if message should be added to brain
 	var shouldAdd = nick.toLowerCase() !== defaultBot.toLowerCase() && text.indexOf(symbol) !== 0 && to === defaultChannel;

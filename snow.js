@@ -257,6 +257,16 @@ client.addListener('part', function (channel, nick, reason, message) {
 		users.splice(users.indexOf(nick), 1);
 });
 
+// Quit Listener
+client.addListener('quit', function (nick, reason, channels, message) {
+	// Check if channel is default channel
+	var isDefault = channels.indexOf(defaultChannel) !== -1;
+
+	// Remove user from default channel users
+	if (isDefault)
+		users.splice(users.indexOf(nick), 1);
+});
+
 // Raw Listener
 client.addListener('raw', function (message) {
 	// Check if raw command is nick

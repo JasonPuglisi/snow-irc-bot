@@ -259,8 +259,8 @@ client.addListener('part', function (channel, nick, reason, message) {
 
 // Quit Listener
 client.addListener('quit', function (nick, reason, channels, message) {
-	// Check if channel is default channel
-	var isDefault = channels.indexOf(defaultChannel) !== -1;
+	// Check if user was in default channel
+	var isDefault = users.indexOf(nick) !== -1;
 
 	// Remove user from default channel users
 	if (isDefault)

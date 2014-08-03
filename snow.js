@@ -857,8 +857,11 @@ function checkThread() {
 			// Set catalog search index
 			var i = 0;
 
+			// Check if data exists
+			var dataExists = data[0] !== undefined;
+
 			// Search catalog for thread
-			while (i < data[0].threads.length && !found) {
+			while (dataExists && i < data[0].threads.length && !found) {
 				// Set thread information
 				var thread = data[0].threads[i];
 				var subject = '';

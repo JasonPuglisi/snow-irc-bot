@@ -8,7 +8,6 @@ You will need to customize the configuration file ```snow.json``` to get your bo
 
 Snow IRC Bot relies on the following Node Package Manager dependencies to run.
 
-- html-entities
 - iconv-lite
 - irc
 - jsmegahal
@@ -16,7 +15,7 @@ Snow IRC Bot relies on the following Node Package Manager dependencies to run.
 - request
 - xml2js
 
-To install these dependencies, make sure you have Node.js and NPM installed. Then run ```npm install html-entities iconv-lite irc jsmegahal moment request xml2js```.
+To install these dependencies, make sure you have Node.js and NPM installed. Then run ```npm install iconv-lite irc jsmegahal moment request xml2js```.
 
 To verify that you have the latest versions of these dependencies, run ```npm update```.
 
@@ -72,15 +71,6 @@ Navigate to the ```settings -> commands``` section of the configuration file. Th
     - ```command```: The text input that executes the command.
     - ```symbol```: Whether the the default command symbol must be prepended to the beginning of the command text. This should be ```true``` if your command text does not have a custom symbol, and ```false``` if it does.
     - ```exclusive```: Whether the command is exclusive to Snow IRC Bot or not. If there is a default bot specified that uses the same command text as this command entry, this value should be set to ```false```. If no other bot shares this command text, this value should be set to ```true```.
-
-## Thread
-
-Navigate to the ```settings -> thread``` section of the configuration file. This section is used for the 4chan thread watcher and mention notifier. In many cases, this is completely irrelevant. If you do not need these features, delete the line of code under ```Start thread checker``` in the code file ```snow.js```.
-
-- ```board```: The board that the thread watcher should look for the target post in.
-- ```subject```: The first part of the subject that the thread watcher should look for in the posts of the specified board.
-- ```lastThread```: The number of the most recent thread that the thread watcher has checked. This is automatically updated by the bot.
-- ```lastPost```: The number of the most recent post that the thread watcher has checked. This is automatically updated by the bot.
 
 ## Dependencies
 
@@ -239,14 +229,6 @@ The Curse to Bless Converter converts all forms of the word ```curse``` in a cha
 The converter also detects and converts reversed text forms of the word ```curse``` to reversed text forms of the word ```bless```. If a channel message matches ```!curse``` exactly, an image is appended to the response in dedication to the user who inspired this feature.
 
 This feature can be disabled by deleting the line under ```Check for curse response``` in the main code file ```snow.js```.
-
-## 4chan Thread Watcher
-
-The 4chan Thread Watcher keeps track of the most recent 4chan thread beginning with the subject and on the board specified in the configuration file. For each new post in the, it checks for instances of all nick names in the default IRC channel. If any are found, the user is notified through an announcement with the corresponding post link.
-
-By default, an updated thread is fetched every 20 seconds. This millisecond time value can be changed under ```Run thread check again after specified pause``` in the main code file ```snow.js```. Note that the 4chan API rules state that you may update threads no more than once every 10 seconds.
-
-This feature can be disabled by deleting the code under ```Start thread checker``` in the main code file ```snow.js```.
 
 # License
 

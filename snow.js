@@ -23,7 +23,7 @@ for (var i in config.apis)
 var defaultChannel = channels[0];
 
 var client = new irc.Client(server, name, {
-	userName: name,
+	userName: name.toLowerCase(),
 	realName: name,
 	port: 6697,
 	secure: true,
@@ -43,6 +43,9 @@ megahal.addMass(fs.readFileSync(brainFile, 'utf8'));
 client.addListener('registered', function (message) {
 	// Identify with NickServ
 	client.say('nickserv', 'identify ' + namePassword);
+
+	// Remove host mask
+	if (removeMask) client.send('MODE', name, '-x');
 
 	// Join channels after pause
 	setTimeout(function() {

@@ -11,6 +11,7 @@
   "settings": {
     "server": "YourServer",
     "name": "YourNick",
+    "removeMask": true,
     "namePassword": "YourNickservPassword",
     "admins": [
       "YourNick"

@@ -91,7 +91,7 @@ client.addListener('message#', function (nick, to, text, message) {
 				commandMatchName = symbol + commandMatchName;
 
 			// Check if command is a match to input
-			var commandMatched = cmd === commandMatchName;
+			var commandMatched = cmd.toLowerCase() === commandMatchName;
 
 			// Validate matched command
 			if (commandMatched) {
@@ -663,7 +663,7 @@ global.getDubs = function getDubs(nick, to, text, message, msg, cmd, args, prefi
 	client.say(to, prefix + ('000000000' + random).slice(0 - size));
 }
 
-// 8ball command
+// Get a random classic 8ball response
 global.getEightBall = function getEightBall(nick, to, text, message, msg, cmd, args, prefix) {
 	// Set response possibilities
 	var answers = [
@@ -681,6 +681,33 @@ global.getEightBall = function getEightBall(nick, to, text, message, msg, cmd, a
 
 	// Announce response selected from random number
 	client.say(to, prefix + answers[random]);
+}
+
+// Send a Yo to a specified username
+global.sendYo = function sendYo(nick, to, text, message, msg, cmd, args, prefix) {
+	// Set target username
+	var target = args[0];
+
+	// Set Yo API post url
+	var yoUrl = 'http://api.justyo.co/yo/';
+
+	// Make Yo API post request
+	request.post(yoUrl, {
+		form: {
+			api_token: yoKey,
+			username: target
+		}
+	}, function (error, response, body) {
+		// Check if request is successful
+		var requestSuccessful = !error && response.statusCode === 200;
+
+		// Announce successful Yo
+		if (requestSuccessful)
+			client.say(to, prefix + 'Sent a Yo to ' + target.toUpperCase() + ' (Make sure they\'ve sent a Yo to ' + yoName.toUpperCase() + ' before)');
+		// Announce invalid Yo
+		else
+			client.say(to, prefix + 'The Yo to ' + target.toUpperCase() + ' is invalid (Wait a minute and try again)');
+	});
 }
 
 /* UTILITY FUNCTIONS */

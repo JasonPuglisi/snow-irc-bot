@@ -43,6 +43,12 @@ At the time of writing, Forecast for Developers provides 1,000 free API requests
 
 At the time of writing, Microsoft Translator provides free translations for 2,000,000 characters per month. Microsoft Translator was chosen over the Google Translate API because the Google Translate API does not offer a free service.
 
+## Yo API
+
+[Yo API] is used in the ```yo``` command to send a Yo to a specified username. Your Yo API account name is stored in ```apis -> yo -> name``` and your Yo API key is stored in ```apis -> yo -> key```.
+
+At the time of writing, Yo API provides one Yo per username per minute. If this limit is exceeded, the bot will announce a warning in chat.
+
 # Configuration
 
 All Snow IRC Bot configuration is done in the ```snow.json``` configuration file. The following sections will detail what you need to put where to get your bot up and running.
@@ -177,6 +183,16 @@ The dubs command rolls a random number with the specified amount of digits. If n
 
 The 8ball command announces a random [Magic 8-Ball answer]. The user can choose to ask a question along with the command, but it has no effect on the output.
 
+## Yo
+
+> ```!y <username>```
+
+> ```!yo <username>```
+
+> ```yo <username>```
+
+The Yo command sends a Yo to the specified username. The username must be subscribed to the bot by having sent a Yo to it in the past. The command will only work once per minute for each username.
+
 # Administrator Commands
 
 The following commands can be executed in a private message to the bot. They can be executed by any user that is a part of ```admins``` in the configuration file.
@@ -263,5 +279,6 @@ THE SOFTWARE.
 [Google Geocoding API]:https://developers.google.com/maps/documentation/geocoding/
 [Forecast For Developers]:https://developer.forecast.io/
 [Microsoft Translator]:http://msdn.microsoft.com/en-us/library/ff512423.aspx
+[Yo API]:http://dev.justyo.co/documents.html
 [language code]:http://msdn.microsoft.com/en-us/library/hh456380.aspx
 [Magic 8-Ball answer]:https://en.wikipedia.org/wiki/Magic_eight_ball#Possible_answers

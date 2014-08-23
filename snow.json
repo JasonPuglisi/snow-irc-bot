@@ -19,8 +19,7 @@
     "channels": [
       "YourChannel",
     ],
-    "users": [
-    ],
+    "users": [],
     "defaultBot": "YourOtherBot",
     "symbol": "!",
     "commands": [
@@ -226,6 +225,28 @@
             "exclusive": true
           }
         ]
+      },
+      {
+        "name": "yo",
+        "function": "sendYo",
+        "minArgs": 1,
+        "commands": [
+          {
+            "command": "y",
+            "symbol": true,
+            "exclusive": false
+          },
+          {
+            "command": "yo",
+            "symbol": true,
+            "exclusive": true
+          },
+          {
+            "command": "yo",
+            "symbol": false,
+            "exclusive": true
+          }
+        ]
       }
     ]
   },
@@ -239,6 +260,10 @@
     "microsoft": {
       "id": "YourId",
       "secret": "YourSecret"
+    },
+    "yo": {
+      "name": "YourName",
+      "key": "YourKey"
     }
   }
 }

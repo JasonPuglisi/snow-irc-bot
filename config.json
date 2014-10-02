@@ -9,7 +9,7 @@
     "parseXml": "xml2js"
   },
   "identity": {
-    "nick": ""
+    "nick": "SnowBot"
   },
   "settings": {
     "enabled": true,
@@ -24,13 +24,18 @@
   },
   "networks": [
     {
-      "name": "",
+      "name": "synIRC",
       "identity": {},
       "settings": {},
       "connection": {
-        "server": ""
+        "server": "irc.synirc.net"
       },
-      "channels": [],
+      "channels": [
+        {
+          "name": "#snowbot",
+          "settings": {}
+        }
+      ],
       "management": {
         "admins": []
       }

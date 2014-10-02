@@ -1,862 +1,525 @@
 /* DEPENDENCIES AND SETTINGS */
 
-// File Configuration
-var configFile = 'snow.json';
-var config = require('./' + configFile);
+global.configFile = 'config.json';
+global.config = require('./' + configFile);
 
-var brainFile = 'snow.txt';
+global.myFile = 'my.json';
+global.myData = require('./' + myFile);
 
-// Dependencies
-for (var i in config.dependencies)
+// Require dependencies
+for (var i in config.dependencies) {
 	global[i] = require(config.dependencies[i]);
+}
 
-// Settings
-for (var i in config.settings)
-	global[i] = config.settings[i];
+// Read modules
+fs.readdir('./modules/', function(err, files) {
+	// For each module
+	for (var i in files) {
+		// Set file
+		var file = files[i];
 
-// APIs
-for (var i in config.apis)
-	for (var j in config.apis[i])
-		global[i + j.charAt(0).toUpperCase() + j.substring(1)] = config.apis[i][j];
+		// Set file name
+		var name = file.substring(0, file.indexOf('.'));
 
-// IRC Configuration
-var defaultChannel = channels[0];
+		// Require module
+		global[name] = require('./modules/' + file);
 
-var client = new irc.Client(server, name, {
-	userName: name.toLowerCase(),
-	realName: name,
-	port: 6697,
-	secure: true,
-	selfSigned: true
-});
-
-users = [];
-
-// JSMegaHAL configuration
-var megahal = new jsmegahal(4);
-
-megahal.addMass(fs.readFileSync(brainFile, 'utf8'));
-
-/* IRC LISTENERS */
-
-// Registered Listener
-client.addListener('registered', function (message) {
-	// Identify with NickServ
-	client.say('nickserv', 'identify ' + namePassword);
-
-	// Remove host mask
-	if (removeMask) client.send('MODE', name, '-x');
-
-	// Join channels after pause
-	setTimeout(function() {
-		for (var i = 0; i < channels.length; i++)
-			client.join(channels[i]);
-	}, 250);
-});
-
-// Channel Message Listener
-client.addListener('message#', function (nick, to, text, message) {
-	// Split message into command and arguments
-	var msg = text.split(' ');
-	var cmd = msg[0];
-	var args = msg.slice(1);
-
-	// Set prefix for channel messages
-	var prefix = nick + ': ';
-
-	// Check if channel is default channel
-	var isDefaultChannel = to === defaultChannel;
-
-	// Check if default bot is in default channel
-	var defaultBotPresent = users.indexOf(defaultBot) !== -1 && to === defaultChannel;
-
-	// Get information for each possible command
-	for (var i in commands) {
-		// Set command information
-		var command = commands[i];
-		var commandName = command.name;
-		var commandFunction = command.function;
-		var commandMinArgs = command.minArgs;
-
-		// Get information for each possible command match
-		for (var j in command.commands) {
-			// Set command match information
-			var commandMatch = command.commands[j];
-			var commandMatchName = commandMatch.command;
-			var commandMatchSymbol = commandMatch.symbol;
-			var commandMatchExclusive = commandMatch.exclusive;
-
-			// Add symbol to command match name
-			if (commandMatchSymbol)
-				commandMatchName = symbol + commandMatchName;
-
-			// Check if command is a match to input
-			var commandMatched = cmd.toLowerCase() === commandMatchName;
-
-			// Validate matched command
-			if (commandMatched) {
-				// Check if there are enough args
-				var enoughArgs = args.length >= commandMinArgs;
-
-				// Check if exclusivity is met
-				var exclusivityMet = commandMatchExclusive || !defaultBotPresent;
-
-				// Check if command is valid
-				var commandValid = enoughArgs && exclusivityMet;
-
-				// Execute valid command
-				if (commandValid)
-					global[commandFunction](nick, to, text, message, msg, cmd, args, prefix);
-			}
-		}
-	}
-
-	// Check for brain respose
-	checkBrain(nick, to, text);
-
-	// Check for curse response
-	checkCurse(to, text); 
-});
-
-// Private Message Listener
-client.addListener('pm', function (nick, text, message) {
-	// Split message into command and arguments
-	var msg = text.split(' ');
-	var cmd = msg[0];
-	var args = msg.slice(1);
-
-	// Check if user is admin
-	var isAdmin = admins.indexOf(nick) !== -1;
-
-	// Set private message commands
-	var sayCmd = 'say';
-	var actCmd = 'act';
-	var joinCmd = 'join';
-	var partCmd = 'part';
-	var nickCmd = 'nick';
-
-	// Execute private message commands
-	if (isAdmin) {
-		// Set channel and message
-		var chan = args[0];
-		var msg = args.slice(1).join(' ');
-
-		// Check if channel is valid
-		var isValidChannel = channels.indexOf(chan) !== -1;
-		var isValidChannelJoin = channels.indexOf(chan) === -1 && chan.length > 1 && chan.charAt(0) === '#';
-
-		// Set invalid message
-		var invalidMsg = 'The channel\' ' + chan + '\' is not valid';
-		var invalidMsgNick = 'The nick\' ' + chan + '\' is not valid';
-
-		// Check if command is say
-		var isSayCmd = cmd === sayCmd && args.length > 1;
-
-		// Announce specified message in specified channel
-		if (isSayCmd) {
-			if (isValidChannel)
-				client.say(chan, msg);
-			else
-				client.say(nick, invalidMsg);
-		}
-
-		// Check if command is act
-		var isActCmd = cmd === actCmd && args.length > 1;
-
-		// Do specified action in specified channel
-		if (isActCmd) {
-			if (isValidChannel)
-				client.action(chan, msg);
-			else
-				client.say(nick, invalidMsg);
-		}
-
-		// Check if command is join
-		var isJoinCmd = cmd === joinCmd && args.length > 0;
-
-		// Join specified channel
-		if (isJoinCmd) {
-			if (isValidChannelJoin) {
-				channels.push(chan);
-				client.join(chan);
-			}
-			else
-				client.say(nick, invalidMsg);
-		}
-
-		// Check if command is part
-		var isPartCmd = cmd === partCmd && args.length > 0;
-
-		// Part specified channel
-		if (isPartCmd) {
-			if (isValidChannel) {
-				channels.splice(channels.indexOf(chan), 1);
-				client.part(chan, 'Leaving channel');
-			}
-			else
-				client.say(nick, invalidMsg);
-		}
-
-		// Check if command is nick
-		var isNickCmd = cmd === nickCmd && args.length > 0;
-
-		// Change to specified nick
-		if (isNickCmd) {
-			var toNick = chan;
-
-			try {
-				client.send('NICK', toNick);
-				name = toNick;
-			}
-			catch (error) {
-				client.say(nick, invalidMsgNick);
-				console.log('Nick Error:');
-				console.log(error);
-			}
+		// For each function
+		for (var j in global[name]) {
+			// Set function
+			global[j] = global[name][j];
 		}
 	}
 });
 
-// Error listener
-client.addListener('error', function (message) {
-	// Log error to console
-	console.log('Error:');
-	console.log(message);
-});
+// Set irc-factory settings
+var axon = factory.axon;
+var api = new factory.Api();
+var options = {
+	events: 31920,
+	rpc: 31930,
+	automaticSetup: true,
+	fork: true
+};
 
-// Names Listener
-client.addListener('names', function (channel, nicks) {
-	// Check if channel is default channel
-	var isDefault = channel === defaultChannel;
+var interfaces = api.connect(options);
+var events = interfaces.events;
+global.rpc = interfaces.rpc;
 
-	// Reset and update default channel users
-	if (isDefault)
-		users = Object.keys(nicks);
-});
+// Set JSMegaHAL settings
+global.megahal = new jsmegahal(4);
 
-// Join Listener
-client.addListener('join', function (channel, nick, message) {
-	// Check if channel is default channel
-	var isDefault = channel === defaultChannel;
+megahal.addMass(fs.readFileSync('brain.txt', 'utf8'));
 
-	// Add user to default channel users
-	if (isDefault)
-		users.push(nick);
-});
+/* EVENT LISTENERS */
 
-// Part Listener
-client.addListener('part', function (channel, nick, reason, message) {
-	// Check if channel is default channel
-	var isDefault = channel === defaultChannel;
+// Set irc-factory message event listener
+events.on('message', function(msg) {
+	// Set event
+	var event = msg.event;
 
-	// Remove user from default channel users
-	if (isDefault)
-		users.splice(users.indexOf(nick), 1);
-});
+	// Declare event name and client
+	var name;
+	var client;
 
-// Quit Listener
-client.addListener('quit', function (nick, reason, channels, message) {
-	// Check if user was in default channel
-	var isDefault = users.indexOf(nick) !== -1;
-
-	// Remove user from default channel users
-	if (isDefault)
-		users.splice(users.indexOf(nick), 1);
-});
-
-// Raw Listener
-client.addListener('raw', function (message) {
-	// Check if raw command is nick
-	var nickChange = message.command.toLowerCase() === 'nick';
-
-	// Update user list
-	if (nickChange)
-		users.splice(users.indexOf(message.nick), 1, message.args[0]);
-});
-
-/* COMMAND FUNCTIONS */
-
-// Get weather for specified location in specified time period
-global.getWeather = function getWeather(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set default scope and alternate scopes
-	var scope = 'currently';
-	var scopes = ['today', 'tomorrow', 'week'];
-
-	// Check if alternate scope is requested
-	var scopeRequested = args.length > 1 && scopes.indexOf(args[0].toLowerCase()) !== -1;
-
-	// Set alternate scope and update arguments
-	if (scopeRequested) {
-		scope = args[0].toLowerCase();
-		args = args.slice(1);
+	// If event is array
+	if (event instanceof Array) {
+		// Set event name and client
+		name = event[1];
+		client = event[0];
 	}
 
-	// Decode input and set location
-	var location = iconv.decode(new Buffer(args.join(' ')), 'ISO-8859-1');
+	// Else (event is not array)
+	else {
+		// Set event name
+		name = event;
+	}
 
-	// Set Google Geocoding API url and insert formatted arguments
-	var geocodingUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location.replace(' ', '+') + '&sensor=false&key=' + googleKey;
+	// Check event name
+	switch(name) {
+		// Synchronize event
+		case 'synchronize':
+			// Set clients
+			var clients = msg.keys;
 
-	// Make Google Geocoding API request
-	request(geocodingUrl, function (error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
+			// Process synchronize event
+			processSynchronize(clients);
+		break;
 
-		// Parse JSON response
-		if (requestSuccessful) {
-			var data = JSON.parse(body);
+		// Registered event
+		case 'registered':
+			// Set nickname
+			var nickname = msg.message.nickname;
 
-			// Check if location is valid
-			var locationValid = data.status === 'OK';
+			// Process registered event
+			processRegistered(client, nickname);
+		break;
 
-			// Set location name and coordinates
-			if (locationValid) {
-				var address = data.results[0].formatted_address;
-				var lat = data.results[0].geometry.location.lat;
-				var lng = data.results[0].geometry.location.lng;
+		// Privmsg event
+		case 'privmsg':
+			// Set target, nickname, and message
+			var target = msg.message.target;
+			var nickname = msg.message.nickname;
+			var message = msg.message.message;
 
-				// Set Forecast API url and insert arguments
-				var forecastUrl = 'https://api.forecast.io/forecast/' + forecastKey + '/' + lat + ',' + lng + '?units=auto';
+			// Process privmsg event
+			processPrivmsg(client, target, nickname, message);
+		break;
+	}
+});
 
-				// Make Forecast API request
-				request(forecastUrl, function (error, response, body) {
-					// Check if request is successful
-					requestSuccessful = !error && response.statusCode === 200;
+/* EVENT FUNCTIONS */
 
-					// Parse JSON response
-					if (requestSuccessful) {
-						data = JSON.parse(body);
+// Process synchronize event
+function processSynchronize(clients) {
+	// Set process arguments
+	var file = process.argv[1];
+	var command = process.argv[2];
+	var arguments = process.argv.slice(3);
 
-						// Set weather information
-						var conditions = data.currently.summary;
-						var temp = data.currently.temperature;
-						var tempAlt = toCelsius(temp);
-						var tempUnit = 'F';
-						var tempUnitAlt = 'C';
-						var humidity = data.currently.humidity * 100;
-						var units = data.flags.units;
+	// Check command
+	switch(command) {
+		// No command
+		case undefined:
+			// List clients and resume execution
+			console.log('Resuming execution. Active clients: ' + clients.join(' '));
+		break;
 
-						// Prepare undetermined information
-						var temp2;
-						var temp2Alt;
+		// List command
+		case 'list':
+			// List clients and exit
+			console.log('Active clients: ' + clients.join(' '));
 
-						// Check if units are metric
-						var unitsMetric = units !== 'us';
+			// Exit script
+			process.exit();
+		break;
 
-						// Update metric temperature and units
-						if (unitsMetric) {
-							tempAlt = toFahrenheit(temp);
-							tempUnit = 'C';
-							tempUnitAlt = 'F';
-						}
+		// Start command
+		case 'start':
+			// Set targets
+			var targets = arguments;
 
-						// Set time information
-						var unixTime = data.currently.time;
-						var offset = data.offset;
+			// List target clients
+			console.log('Starting clients: ' + (targets.join(' ') || '*'));
 
-						// Set weather summary
-						var summary =  conditions + ' (' + Math.round(temp) + '°' + tempUnit + '/' + Math.round(tempAlt) + '°' + tempUnitAlt + ') in ' + address + ' with ' + Math.round(humidity) + '% Humidity';
+			// Start target clients
+			createClients(clients, targets);
 
-						// Update weather information and summary for alternate scope
-						switch (scope) {
+			// Exit script
+			setTimeout(function() {
+				process.exit();
+			}, 3000);
+		break;
 
-							// Update weather information and summary for today scope
-							case 'today':
+		// Stop command
+		case 'stop':
+			// Set targets
+			var targets = arguments;
 
-							// Update weather information
-							conditions = data.daily.data[0].summary;
-							temp = data.daily.data[0].temperatureMax;
-							tempAlt = toCelsius(temp);
-							temp2 = data.daily.data[0].temperatureMin;
-							temp2Alt = toCelsius(temp2);
-							humidity = data.daily.data[0].humidity;
+			// List target clients
+			console.log('Stopping clients: ' + (targets.join(' ') || '*'));
 
-							// Update metric temperatures
-							if (unitsMetric) {
-								tempAlt = toFahrenheit(temp);
-								temp2Alt = toFahrenheit(temp2);
-							}
+			// Stop target clients
+			destroyClients(clients, targets);
 
-							// Update weather summary
-							summary = conditions.substring(0, conditions.length - 1) + ' (\u0002' + Math.round(temp) + '°' + tempUnit + '/' + Math.round(tempAlt) + '°' + tempUnitAlt + '\u000F ' + Math.round(temp2) + '°' + tempUnit + '/' + Math.round(temp2Alt) + '°' + tempUnitAlt + ') in ' + address;
-							break;
+			// Exit script
+			setTimeout(function() {
+				process.exit();
+			}, 3000);
+		break;
+	}
+}
 
-							// Update weather information and summary for tomorrow scope
-							case 'tomorrow':
+// Process registered event
+function processRegistered(client, nickname) {
+	// Find network index
+	var networkIndex = findNetwork(client);
 
-							// Update weather information
-							conditions = data.daily.data[1].summary;
-							temp = data.daily.data[1].temperatureMax;
-							tempAlt = toCelsius(temp);
-							temp2 = data.daily.data[1].temperatureMin;
-							temp2Alt = toCelsius(temp2);
-							humidity = data.daily.data[1].humidity;
+	// Set network
+	var network = config.networks[networkIndex];
 
-							// Update metric temperatures
-							if (unitsMetric) {
-								tempAlt = toFahrenheit(temp);
-								temp2Alt = toFahrenheit(temp2);
-							}
+	// Set NickServ password (network nickserv)
+	var nickserv = network.identity.nickserv;
 
-							// Update weather summary
-							summary = conditions.substring(0, conditions.length - 1) + ' (\u0002' + Math.round(temp) + '°' + tempUnit + '/' + Math.round(tempAlt) + '°' + tempUnitAlt + '\u000F ' + Math.round(temp2) + '°' + tempUnit + '/' + Math.round(temp2Alt) + '°' + tempUnitAlt + ') in ' + address;
-							break;
+	// If NickServ password exists
+	if (nickserv !== undefined) {
+		// Send identification to NickServ
+		rpc.emit('call', client, 'privmsg', ['nickserv', 'identify ' + nickserv]);
+	}
 
-							// Update weather information and summary for week scope
-							case 'week':
+	// Set default host mask (network mask, default mask, true)
+	var mask = network.identity.mask;
+	if (mask === undefined) {
+		mask = config.identity.mask;
+		if (mask === undefined) {
+			mask = true;
+		}
+	}
 
-							// Update weather information
-							conditions = data.daily.summary;
+	// If default host mask disabled
+	if (!mask) {
+		rpc.emit('call', client, 'mode', [nickname, '-x']);
+	}
 
-							// Update weather summary
-							summary = conditions.substring(0, conditions.length - 1) + ' in ' + address;
-							break;
-						}
+	// Join all channels on network after pause
+	joinChannels(client, network);
+}
 
-						// Check if scope is currently
-						var scopeCurrently = scope === 'currently';
+// Process privmsg event
+function processPrivmsg(client, target, nickname, message) {
+	// Find and set network
+	var network = config.networks[findNetwork(client)];
 
-						// Update and append time information
-						if (scopeCurrently) {
-							// Parse time from unix time and offset
-							var time = moment.unix(unixTime).utc().add('hours', offset);
+	// If target is channel
+	if (target.charAt(0) === '#') {
+		// Set channel
+		var channel = network.channels[findChannel(network, target.toLowerCase())];
 
-							// Format time from parsed time
-							var timeString = time.format('h:mm A on dddd, MMMM Do');
+		// Set message, command, and arguments
+		var message = message.split(' ');
+		var command = message[0];
+		var arguments = message.slice(1);
 
-							// Append time information to weather summary
-							summary += ' at ' + timeString;
-						}
+		// Find command indexes
+		var commandIndexes = findCommand(network, channel, command);
 
-						// Announce weather summary
-						client.say(to, prefix + summary);
+		// If command is valid
+		if (commandIndexes[0] !== -1) {
+			// Set command and trigger
+			var command = config.commands[commandIndexes[0]];
+			var trigger = command.triggers[commandIndexes[1]];
+
+			// Set minimum arguments
+			var args = trigger.args || command.args;
+
+			// If arguments meet minimum requirement
+			if (arguments.length >= args) {
+				// Run command
+				runCommand(client, network, channel, command, trigger, nickname, target, arguments);
+			}
+		} else {
+			// Set message functions (channel functions, network functions, default functions)
+			var functions = channel.settings.functions || network.settings.functions || config.settings.functions;
+
+			// For each message function
+			for (var i in functions) {
+				// Set function
+				var messageFunction = functions[i];
+
+				// Call message function
+				global[messageFunction](client, network, channel, nickname, target, message);
+			}
+		}
+	}
+}
+
+/* CLIENT FUNCTIONS */
+
+// Start target clients
+function createClients(clients, targets) {
+	// For each network
+	for (var i in config.networks) {
+		// Set network
+		var network = config.networks[i];
+
+		// Set name
+		var name = network.name;
+
+		// If name is not in clients
+		if (clients.indexOf(name) === -1) {
+			// If no targets or name is in targets
+			if (targets.length === 0 || targets.indexOf(name) !== -1) {
+				// Set enabled (network enabled, default enabled)
+				var enabled = network.settings.enabled;
+				if (enabled === undefined) {
+					enabled = config.settings.enabled;
+				}
+
+				// If enabled
+				if (enabled) {
+					// Set nick (network nick, default nick)
+					var nick = network.identity.nick || config.identity.nick;
+
+					// Set user (network user, default user, network nick, default nick)
+					var user = network.identity.user || config.identity.user || nick;
+
+					// Set realname (network realname, default realname, network nick, default nick)
+					var realname = network.identity.realname || config.identity.realname || nick;
+
+					// Set server (network server)
+					var server = network.connection.server;
+
+					// Set port (network port, 6667)
+					var port = network.connection.port || 6667;
+
+					// Set secure (network secure, disabled)
+					var secure = network.connection.secure;
+					if (secure === undefined) {
+						secure = false;
 					}
-				});
-			}
-			// Announce invalid location
-			else
-				client.say(to, prefix + 'The location \'' + location + '\' could not be found');
-		}
-	});
-}
 
-// Get fahrenheit temperature from specified celsius temperature
-global.getFahrenheit = function getFahrenheit(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set celsius temperature
-	var celsius = args[0];
+					// Set password (network password)
+					var password = network.connection.password;
 
-	// Set fahrenheit temperature
-	var fahrenheit = toFahrenheit(celsius);
-
-	// Announce fahrenheit temperature
-	client.say(to, prefix + Math.round(fahrenheit) + '°F (' + Math.round(celsius) + '°C)')
-}
-
-// Get celsius temperature from specified fahrenheit temperature
-global.getCelsius = function getCelsius(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set fahrenheit temperature
-	var fahrenheit = args[0];
-
-	// Set celsius temperature
-	var celsius = toCelsius(fahrenheit);
-
-	// Announce celsius temperature
-	client.say(to, prefix + Math.round(celsius) + '°C (' + Math.round(fahrenheit) + '°F)')
-}
-
-// Get specified video from YouTube
-global.getVideo = function getVideo(nick, to, text, message, msg, cmd, args, prefix) {
-	// Decode input and set video
-	var video = iconv.decode(new Buffer(args.join(' ')), 'ISO-8859-1');
-
-	// Set Google YouTube API url and insert formatted arguments
-	var youtubeUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + video.replace(' ', '+') + '&key=' + googleKey;
-
-	// Make Google YouTube API request
-	request(youtubeUrl, function (error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
-
-		// Parse JSON response
-		if (requestSuccessful) {
-			var data = JSON.parse(body);
-
-			// Check if video is valid
-			var videoValid = data.items[0].id.videoId !== undefined;
-
-			// Set video information
-			if (videoValid) {
-				var videoId = data.items[0].id.videoId;
-				var videoTitle = data.items[0].snippet.title;
-
-				// Announce video title and link
-				client.say(to, prefix + videoTitle + ' • https://youtube.com/watch?v=' + videoId);
-			}
-			// Announce invalid video
-			else
-				client.say(to, prefix + 'The video \'' + video + '\' could not be found');
-		}
-	});
-}
-
-// Get translation to specified language for specified text
-global.getTranslation = function getTranslation(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set target language
-	var target = args[0];
-
-	// Decode and set input of text to be translated
-	var input = iconv.decode(new Buffer(args.slice(1).join(' ')), 'ISO-8859-1');
-
-	// Set Microsoft Translator Authorization API post parameters
-	var authUrl = 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/';
-	var scopeUrl = 'http://api.microsofttranslator.com';
-	var grantType = 'client_credentials';
-
-	// Make Microsoft Translator Authorization API post request
-	request.post(authUrl, {
-		form: {
-			client_id: microsoftId,
-			client_secret: microsoftSecret,
-			scope: scopeUrl,
-			grant_type: grantType
-		}
-	}, function (error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
-
-		// Parse JSON response
-		if (requestSuccessful) {
-			var data = JSON.parse(body);
-
-			// Set authorization access token
-			var accessToken = data.access_token;
-
-			// Set Microsoft Translator API url and insert formatter arguments
-			var translateUrl = 'https://api.microsofttranslator.com/V2/Http.svc/Translate?appId=Bearer ' + encodeURIComponent(accessToken) + '&text=' + input + '&to=' + target + '&contentType=text/plain';
-
-			// Make Microsoft Translator API request
-			request(translateUrl, function (error, response, body) {
-				// Check if request is successful
-				requestSuccessful = !error && response.statusCode === 200;
-
-				// Parse XML response
-				if (requestSuccessful)
-					parseXml.parseString(body, function (error, result) {
-						// Set translated text
-						var translation = result.string._;
-
-						// Announce target language and translated text
-						client.say(to, prefix + '[' + target + '] ' + translation);
+					// Create client
+					rpc.emit('createClient', name, {
+						nick: nick,
+						user: user,
+						realname: realname,
+						server: server,
+						port: port,
+						secure: secure,
+						password: password
 					});
-				// Announce invalid target language
-				else
-					client.say(to, prefix + 'The language code \'' + target + '\' is not valid (Languages Codes: http://msdn.microsoft.com/en-us/library/hh456380.aspx)');
-			});
-		}
-	});
-}
-
-// Get boobs randomly from 50 hot posts on Reddit
-global.getBoobs = function getBoobs(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set Reddit API url
-	var boobsUrl = 'http://www.reddit.com/r/boobies/hot.json?limit=50';
-
-	// Make Reddit API request
-	request(boobsUrl, function(error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
-
-		// Parse JSON response
-		if (requestSuccessful) {
-			var data = JSON.parse(body);
-
-			// Set number of responses returned
-			var responses = data.data.children.length;
-
-			// Set satisfactory response unfound
-			var found = false;
-
-			// Find random response
-			while (!found) {
-				var rand = Math.round(Math.random() * responses);
-
-				// Set random response information
-				var res;
-				if (data.data.children[rand] !== undefined) res = data.data.children[rand].data;
-
-				// Check if response url is satisfactory
-				var urlSatisfactory = res !== undefined && res.domain === 'i.imgur.com';
-
-				// Set satisfactory response found
-				if (urlSatisfactory) {
-					found = true;
-
-					// Announce boobs and link
-					client.say(to, prefix + 'Boobs • ' + res.url);
 				}
 			}
 		}
-	});
+	}
 }
 
-// Get butt randomly from 50 hot posts on Reddit
-global.getButt = function getButt(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set Reddit API url
-	var buttUrl = 'http://www.reddit.com/r/ass/hot.json?limit=50';
+// Stop target clients
+function destroyClients(clients, targets) {
+	// For each client
+	for (var i in clients) {
+		// Set client
+		var client = clients[i];
 
-	// Make Reddit API request
-	request(buttUrl, function(error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
+		// If no targets or client is in target
+		if (targets.length === 0 || targets.indexOf(client) !== -1) {
+			// Destroy client
+			rpc.emit('destroyClient', client);
+		}
+	}
+}
 
-		// Parse JSON response
-		if (requestSuccessful) {
-			var data = JSON.parse(body);
+// Join all channels on network
+function joinChannels(client, network) {
+	// For each channel
+	for (var i in network.channels) {
+		// Set channel
+		var channel = network.channels[i];
 
-			// Set number of responses returned
-			var responses = data.data.children.length;
+		// Set enabled (channel enabled, network enabled, default enabled)
+		var enabled = channel.settings.enabled;
+		if (enabled === undefined) {
+			enabled = network.settings.enabled;
+			if (enabled === undefined) {
+				enabled = config.settings.enabled;
+			}
+		}
 
-			// Set satisfactory response unfound
-			var found = false;
+		// Join channel if required
+		if (enabled) {
+			rpc.emit('call', client, 'join', [channel.name]);
+		}
+	}
+}
 
-			// Find random response
-			while (!found) {
-				var rand = Math.round(Math.random() * responses);
-
-				// Set random response information
-				var res;
-				if (data.data.children[rand] !== undefined) res = data.data.children[rand].data;
-
-				// Check if response url is satisfactory
-				var urlSatisfactory = res !== undefined && res.domain === 'i.imgur.com';
-
-				// Set satisfactory response found
-				if (urlSatisfactory) {
-					found = true;
-
-					// Announce butt and link
-					client.say(to, prefix + 'Butt • ' + res.url);
+// Run command
+function runCommand(client, network, channel, command, trigger, nickname, target, arguments) {
+	// Set admin required (trigger admin, command admin, channel admin, network admin, default admin)
+	var admin = trigger.settings.admin;
+	if (admin === undefined) {
+		admin = command.settings.admin;
+		if (admin === undefined) {
+			admin = channel.settings.admin;
+			if (admin === undefined) {
+				admin = network.settings.admin;
+				if (admin === undefined) {
+					admin = config.settings.admin;
 				}
 			}
 		}
-	});
-}
+	}
 
-// Get dubs attempt for a number with two digits or a specified length
-global.getDubs = function getDubs(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set size to specified number of digits
-	var size = args[0];
+	// Set admins
+	var admins = network.management.admins;
 
-	// Check if size input is valid and within bounds
-	var sizeValid = !isNaN(size) && size > 0 && size < 11;
+	// If admin not required or nickname is admin
+	if (!admin || admins.indexOf(nickname.toLowerCase()) !== -1) {
+		// Set blank prefix
+		var prefix = '';
 
-	// Set size to two digits
-	if (!sizeValid) size = 2;
-
-	// Calculate maximum number
-	var max = Math.pow(10, size) - 2;
-
-	// Get random number up to the max and add one to it
-	var random = Math.round(Math.random() * max + 1);
-
-	// Announce random number with as many leading zeros as necessary
-	client.say(to, prefix + ('000000000' + random).slice(0 - size));
-}
-
-// Get a random classic 8ball response
-global.getEightBall = function getEightBall(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set response possibilities
-	var answers = [
-		'It is certain', 'It is decidedly so', 'Without a doubt',
-		'Yes definitely', 'You may rely on it', 'As I see it, yes',
-		'Most likely', 'Outlook good', 'Yes', 'Signs point to yes',
-		'Reply hazy try again', 'Ask again later', 'Better not tell you now',
-		'Cannot predict now', 'Concentrate and ask again', 'Don\'t count on it',
-		'My reply is no', 'My sources say no', 'Outlook not so good',
-		'Very doubtful'
-	];
-
-	// Get random number up to the total number of response possibilities
-	var random = Math.round(Math.random() * answers.length - 1);
-
-	// Announce response selected from random number
-	client.say(to, prefix + answers[random]);
-}
-
-// Send a Yo to a specified username
-global.sendYo = function sendYo(nick, to, text, message, msg, cmd, args, prefix) {
-	// Set target username
-	var target = args[0];
-
-	// Set Yo API post url
-	var yoUrl = 'http://api.justyo.co/yo/';
-
-	// Make Yo API post request
-	request.post(yoUrl, {
-		form: {
-			api_token: yoKey,
-			username: target
+		// If channel exists
+		if (channel !== undefined) {
+			// Update prefix (trigger prefix, command prefix, channel prefix, network prefix, default prefix)
+			prefix = trigger.settings.prefix || command.settings.prefix || channel.settings.prefix || network.settings.prefix || config.settings.prefix;
 		}
-	}, function (error, response, body) {
-		// Check if request is successful
-		var requestSuccessful = !error && response.statusCode === 200;
 
-		// Announce successful Yo
-		if (requestSuccessful)
-			client.say(to, prefix + 'Sent a Yo to ' + target.toUpperCase() + ' (Make sure they\'ve sent a Yo to ' + yoName.toUpperCase() + ' before)');
-		// Announce invalid Yo
-		else
-			client.say(to, prefix + 'The Yo to ' + target.toUpperCase() + ' is invalid (Wait a minute and try again)');
-	});
+		// Else (channel does not exist)
+		else {
+			// Update prefix (trigger prefix, command prefix, network prefix, default prefix)
+			prefix = trigger.settings.prefix || command.settings.prefix || network.settings.prefix || config.settings.prefix;
+		}
+
+		// Parse nickname variable in prefix
+		prefix = prefix.replace(/%NAME%/g, nickname);
+
+		// Set command function
+		var commandFunction = trigger.function || command.function;
+
+		// Call command function
+		global[commandFunction](client, network, channel, command, trigger, nickname, target, arguments, prefix);
+	}
 }
 
 /* UTILITY FUNCTIONS */
 
-// Convert temperature value from celsius to fahrenheit
-function toFahrenheit(celsius) {
-	// Calculate fahrenheit value
-	var fahrenheit = celsius * 9 / 5 + 32;
+// Find network index
+function findNetwork(target) {
+	// For each network
+	for (var i in config.networks) {
+		// Set network
+		var network = config.networks[i];
 
-	// Return fahrenheit value
-	return fahrenheit;
-}
+		// Set name
+		var name = network.name;
 
-// Convert temperature value from fahrenheit to celsius
-function toCelsius(fahrenheit) {
-	// Calculate celsius value
-	var celsius = (fahrenheit - 32) * 5 / 9;
-
-	// Return celsius value
-	return celsius;
-}
-
-// Add message to brain and respond to mention
-function checkBrain(nick, to, text) {
-	// Check if name is at beginning of message
-	var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0 || text.toLowerCase().indexOf(name.toLowerCase() + ', ') === 0;
-
-	// Check if message should be added to brain
-	var shouldAdd = nick.toLowerCase() !== defaultBot.toLowerCase() && text.indexOf(symbol) !== 0 && to === defaultChannel;
-
-	// Respond to directed message
-	if (toName) {
-		client.say(to, megahal.getReplyFromSentence(text.substring(name.length + 1)));
-	}
-	else
-		if (shouldAdd) {
-			// Set last character of message
-			var textEnd = text.charAt(text.length - 1);
-
-			// Check if character is punctuation
-			var hasPunctuation = textEnd === '.' || textEnd === '!' || textEnd === '?';
-
-			// Set brain file log message punctuation
-			if (!hasPunctuation) text += '.';
-
-			// Add log to brain file
-			fs.appendFile(brainFile, text + ' ', function (error) {
-				// Log error to console
-				if (error) {
-					console.log('Log Error:');
-					console.log(error);
-				}
-			});
-
-			// Add log to JSMegaHal
-			megahal.add(text);
+		// If name is target
+		if (name === target) {
+			// Return index
+			return i;
 		}
-}
-
-// Check for curses in message and do conversions
-function checkCurse(to, text) {
-	// Set curse keywords
-	var curses = ['curse', 'cursing'];
-
-	// Assume no curse present in message
-	var curse = false;
-
-	// Check if curse is present in message
-	for (var i in curses) {
-		var curseFound = text.toLowerCase().indexOf(curses[i]) !== -1;
-		var reverseCurseFound = text.toLowerCase().split('').reverse().join('').indexOf(curses[i]) !== -1;
-
-		// Set curse present in message
-		if (curseFound || reverseCurseFound)
-			curse = true;
 	}
 
-	// Convert curse instances to bless instances
-	if (curse) {
-		var output = text;
-		for (var i = 0; i < 2; i++) output = curseToBless(output.split('').reverse().join(''));
-		client.say(to, output);
-	}
+	// Return no match
+	return -1;
 }
 
-// Convert curse instances to bless instances
-function curseToBless(message) {
-	// Set curse keywords
-	var curses = ['cursed', 'blessed', 'curses', 'blesses', 'curse', 'bless', 'cursing', 'blessing'];
+// Find channel index
+function findChannel(network, target) {
+	// For each channel
+	for (var i in network.channels) {
+		// Set channel
+		var channel = network.channels[i];
 
-	// Assume curse present in message
-	var cursePresent = true;
+		// Set name
+		var name = channel.name;
 
-	// Search message while curse present in message
-	while (cursePresent) {
-		// Prepare undetermined information
-		var key;
-		var pos;
-		var input;
-		var output;
+		// If name is target
+		if (name === target) {
+			// Return index
+			return i;
+		}
+	}
 
-		// Search for each curse possibility
-		for (var i = 0; i < curses.length - 1; i += 2) {
-			// Set curse keyword to check for
-			key = curses[i];
+	// Return no match
+	return -1;
+}
 
-			// Check for curse keyword in message
-			keyFound = message.toLowerCase().indexOf(key) !== -1;
+// Find command index
+function findCommand(network, channel, target) {
+	// Set blacklist
+	var blacklist = channel.settings.blacklist || network.settings.blacklist || config.settings.blacklist;
 
-			// Update curse input and bless output information
-			if (keyFound) {
-				pos = message.toLowerCase().indexOf(key);
-				input = message.substring(pos, pos + key.length);
-				output = curses[i + 1];
+	// For each command
+	for (var i in config.commands) {
+		// Set command
+		var command = config.commands[i];
 
-				// Replace lower case letters in bless output where appropriate
-				for (var i = 0; i < key.length; i++) {
-					// Check if current letter is upper case in input
-					var isCapital = input.charAt(i) === input.charAt(i).toUpperCase();
+		// For each trigger
+		for (var j in command.triggers) {
+			// Set trigger
+			var trigger = command.triggers[j];
 
-					// Replace current lower case letter in output
-					if (isCapital)
-						output = output.substring(0, i) + output.charAt(i).toUpperCase() + output.substring(i + 1);
+			// Set trigger name
+			var name = trigger.name;
+
+			// Set enabled (trigger enabled, command enabled, true)
+			var enabled = trigger.settings.enabled;
+			if (enabled === undefined) {
+				enabled = command.settings.enabled;
+				if (enabled === undefined) {
+					enabled = true;
+				}
+			}
+
+			// If enabled
+			if (enabled) {
+				// Set symbol (trigger symbol, command symbol, channel symbol, network symbol, default symbol)
+				var symbol = trigger.settings.symbol || command.settings.symbol || channel.settings.symbol || network.settings.symbol || config.settings.symbol;
+				if (trigger.settings.symbol === '') {
+					symbol = '';
 				}
 
-				// Cut input from message and insert output
-				message = message.substring(0, pos) + output + message.substring(pos + key.length);
+				// Set case sensitivity (trigger cases, command cases, channel cases, network cases, default cases)
+				var cases = trigger.settings.cases;
+				if (cases === undefined) {
+					cases = command.settings.cases;
+					if (cases === undefined) {
+						cases = channel.settings.cases;
+						if (cases === undefined) {
+							cases = network.settings.cases;
+							if (cases === undefined) {
+								cases = config.settings.cases;
+							}
+						}
+					}
+				}
+
+				// If case sensitivity disabled
+				if (!cases) {
+					// Remove case sensitivity from symbol, name, and target
+					symbol = symbol.toLowerCase();
+					name = name.toLowerCase();
+					target = target.toLowerCase();
+				}
+
+				// If command is not in blacklist
+				if (blacklist.indexOf(name) === -1) {
+					// Add symbol to name
+					name = symbol + name;
+
+					// If trigger is target
+					if (name === target) {
+						// Return match indexes
+						return [i, j];
+					}
+				}
 			}
 		}
-
-		// Check if conversion matches bless command
-		var blessCommand = message.toLowerCase() === '!bless';
-
-		// Append to output drawing of Exeanon admiring Rerk
-		if (blessCommand) message += ' http://i.imgur.com/v6BUGn8.jpg';
-
-		// Assume curse not present in message
-		cursePresent = false;
-
-		// Check if curse is present in message
-		for (var i = 0; i < curses.length - 1; i += 2) {
-			var curseFound = message.toLowerCase().indexOf(curses[i]) !== -1;
-
-			// Set curse present in message
-			if (curseFound)
-				cursePresent = true;
-		}
 	}
 
-	// Return converted message
-	return message;
+	// Return no match
+	return [-1];
 }

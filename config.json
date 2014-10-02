@@ -1,0 +1,164 @@
+{
+  "dependencies": {
+    "fs": "fs",
+    "iconv": "iconv-lite",
+    "factory": "irc-factory",
+    "jsmegahal": "jsmegahal",
+    "moment": "moment",
+    "request": "request",
+    "parseXml": "xml2js"
+  },
+  "identity": {
+    "nick": ""
+  },
+  "settings": {
+    "enabled": true,
+    "blacklist": [],
+    "symbol": "!",
+    "cases": true,
+    "admin": false,
+    "prefix": "%NAME%: ",
+    "log": true,
+    "respond": true,
+    "functions": ["processResponse"]
+  },
+  "networks": [
+    {
+      "name": "",
+      "identity": {},
+      "settings": {},
+      "connection": {
+        "server": "",
+        "port": ""
+      },
+      "channels": [],
+      "management": {
+        "admins": []
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "My",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "my",
+          "settings": {}
+        }
+      ],
+      "args": 1,
+      "function": "setMy"
+    },
+    {
+      "name": "MyOther",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "myother",
+          "settings": {}
+        }
+      ],
+      "args": 2,
+      "function": "setMyOther"
+    },
+    {
+      "name": "Profile",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "profile",
+          "settings": {}
+        }
+      ],
+      "args": 1,
+      "function": "viewProfile"
+    },
+    {
+      "name": "Weather",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "weather",
+          "settings": {}
+        }
+      ],
+      "args": 0,
+      "function": "getWeather"
+    },
+    {
+      "name": "Video",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "video",
+          "settings": {}
+        }
+      ],
+      "args": 0,
+      "function": "getVideo"
+    },
+    {
+      "name": "Translate",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "translate",
+          "settings": {}
+        }
+      ],
+      "args": 2,
+      "function": "getTranslation"
+    },
+    {
+      "name": "Yo",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "yo",
+          "settings": {}
+        }
+      ],
+      "args": 1,
+      "function": "sendYo"
+    },
+    {
+      "name": "Dubs",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "dubs",
+          "settings": {}
+        }
+      ],
+      "args": 0,
+      "function": "getDubs"
+    },
+    {
+      "name": "EightBall",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "8ball",
+          "settings": {}
+        }
+      ],
+      "args": 0,
+      "function": "getEightBall"
+    },
+    {
+      "name": "Dance",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "dance",
+          "settings": {}
+        }
+      ],
+      "args": 1,
+      "function": "doDance"
+    }
+  ],
+  "apis": {}
+  }
+}

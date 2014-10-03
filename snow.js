@@ -266,7 +266,7 @@ function processPrivmsg(client, target, nickname, message) {
 			var trigger = command.triggers[commandIndexes[1]];
 
 			// Set minimum args
-			var minArgs = trigger.minArgs || command.minArgs;
+			var minArgs = trigger.args || command.args;
 
 			// If args meet minimum requirement
 			if (args.length >= minArgs) {

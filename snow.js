@@ -143,12 +143,9 @@ function processSynchronize(clients) {
 			console.log('Starting clients: ' + (targets.join(' ') || '*'));
 
 			// Start target clients
-			createClients(clients, targets);
-
-			// Exit script
-			setTimeout(function() {
+			createClients(clients, targets, function() {
 				process.exit();
-			}, 3000);
+			});
 		break;
 
 		// Stop command
@@ -160,12 +157,9 @@ function processSynchronize(clients) {
 			console.log('Stopping clients: ' + (targets.join(' ') || '*'));
 
 			// Stop target clients
-			destroyClients(clients, targets);
-
-			// Exit script
-			setTimeout(function() {
+			destroyClients(clients, targets, function() {
 				process.exit();
-			}, 3000);
+			});
 		break;
 	}
 }
@@ -201,7 +195,7 @@ function processRegistered(client, nickname) {
 		rpc.emit('call', client, 'mode', [nickname, '-x']);
 	}
 
-	// Join all channels on network after pause
+	// Join all channels on network
 	joinChannels(client, network);
 }
 
@@ -256,7 +250,7 @@ function processPrivmsg(client, target, nickname, message) {
 /* CLIENT FUNCTIONS */
 
 // Start target clients
-function createClients(clients, targets) {
+function createClients(clients, targets, callback) {
 	// For each network
 	for (var i in config.networks) {
 		// Set network
@@ -323,10 +317,13 @@ function createClients(clients, targets) {
 			}
 		}
 	}
+
+	// Send callback
+	callback();
 }
 
 // Stop target clients
-function destroyClients(clients, targets) {
+function destroyClients(clients, targets, callback) {
 	// For each client
 	for (var i in clients) {
 		// Set client
@@ -338,6 +335,9 @@ function destroyClients(clients, targets) {
 			rpc.emit('destroyClient', client);
 		}
 	}
+
+	// Send callback
+	callback();
 }
 
 // Join all channels on network

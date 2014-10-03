@@ -121,14 +121,14 @@ function processSynchronize(clients) {
 	switch(command) {
 		// No command
 		case undefined:
-			// List clients and resume execution
-			console.log('Resuming execution. Active clients: ' + clients.join(' '));
+			// Log clients and resume execution
+			console.log('Resuming execution: ' + clients.join(' '));
 		break;
 
 		// List command
 		case 'list':
-			// List clients and exit
-			console.log('Active clients: ' + clients.join(' '));
+			// Log clients
+			console.log('Clients: ' + clients.join(' '));
 
 			// Exit script
 			process.exit();
@@ -139,11 +139,9 @@ function processSynchronize(clients) {
 			// Set targets
 			var targets = arguments;
 
-			// List target clients
-			console.log('Starting clients: ' + (targets.join(' ') || '*'));
-
 			// Start target clients
 			createClients(clients, targets, function() {
+				// Exit script
 				process.exit();
 			});
 		break;
@@ -153,11 +151,9 @@ function processSynchronize(clients) {
 			// Set targets
 			var targets = arguments;
 
-			// List target clients
-			console.log('Stopping clients: ' + (targets.join(' ') || '*'));
-
 			// Stop target clients
 			destroyClients(clients, targets, function() {
+				// Exit script
 				process.exit();
 			});
 		break;
@@ -251,18 +247,21 @@ function processPrivmsg(client, target, nickname, message) {
 
 // Start target clients
 function createClients(clients, targets, callback) {
-	// For each network
-	for (var i in config.networks) {
-		// Set network
-		var network = config.networks[i];
+	// For each target
+	for (var i in targets) {
+		// Find network
+		var networkIndex = findNetwork(targets[i]);
 
-		// Set name
-		var name = network.name;
+		// If network exists
+		if (networkIndex !== -1) {
+			// Set network
+			var network = config.networks[networkIndex];
 
-		// If name is not in clients
-		if (clients.indexOf(name) === -1) {
-			// If no targets or name is in targets
-			if (targets.length === 0 || targets.indexOf(name) !== -1) {
+			// Set name
+			var name = network.name;
+
+			// If name is not in clients
+			if (clients.indexOf(name) === -1) {
 				// Set enabled (network enabled, default enabled)
 				var enabled = network.settings.enabled;
 				if (enabled === undefined) {
@@ -271,6 +270,9 @@ function createClients(clients, targets, callback) {
 
 				// If enabled
 				if (enabled) {
+					// Log client creation
+					console.log('Starting ' + targets[i]);
+
 					// Set nick (network nick, default nick)
 					var nick = network.identity.nick || config.identity.nick;
 
@@ -314,7 +316,25 @@ function createClients(clients, targets, callback) {
 						password: password
 					});
 				}
+
+				// Else (not enabled)
+				else {
+					// Log disabled
+					console.log('[!] ' + targets[i] + ' is disabled');
+				}
 			}
+
+			// Else (name is in clients)
+			else {
+				// Log running client
+				console.log('[!] ' + targets[i] + ' is already running');
+			}
+		}
+
+		// Else (network does not exist)
+		else {
+			// Log invalid network
+			console.log('[!] ' + targets[i] + ' does not exist');
 		}
 	}
 
@@ -324,15 +344,24 @@ function createClients(clients, targets, callback) {
 
 // Stop target clients
 function destroyClients(clients, targets, callback) {
-	// For each client
-	for (var i in clients) {
-		// Set client
-		var client = clients[i];
+	// For each target
+	for (var i in targets) {
+		// Set target
+		var target = targets[i];
 
-		// If no targets or client is in target
-		if (targets.length === 0 || targets.indexOf(client) !== -1) {
+		// If target is in clients
+		if (clients.indexOf(target) !== -1) {
+			// Log client destroy
+			console.log('Stopping ' + target);
+
 			// Destroy client
 			rpc.emit('destroyClient', client);
+		}
+
+		// Else (target not in clients)
+		else {
+			// Log client not running
+			console.log('[!] ' + target + ' is not running');
 		}
 	}
 

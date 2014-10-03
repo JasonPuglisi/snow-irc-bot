@@ -43,7 +43,7 @@ module.exports = {
 						rpc.emit('call', client, 'privmsg', [target, prefix + 'Your ' + option.toLowerCase() + ' input is too long']);
 				}
 
-				fs.writeFileSync(myFile, JSON.stringify(profileData));
+				fs.writeFileSync(profileFile, JSON.stringify(profileData));
 			}
 		}
 

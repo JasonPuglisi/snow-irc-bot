@@ -1,7 +1,7 @@
 module.exports = {
-	setMy: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
-		var option = arguments[0];
-		var value = arguments.slice(1).join(' ');
+	setMy: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
+		var option = args[0];
+		var value = args.slice(1).join(' ');
 
 		if (option.length <= 25 && option !== ' ') {
 			if (profileData[client] === undefined)
@@ -51,17 +51,17 @@ module.exports = {
 			rpc.emit('call', client, 'privmsg', [target, prefix + 'Your option \'' + option.toLowerCase() + '\' is too long']);
 	},
 
-	setMyOther: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
-		nickname = arguments[0];
-		arguments = arguments.slice(1);
+	setMyOther: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
+		nickname = args[0];
+		args = args.slice(1);
 		prefix += '[' + nickname + '] ';
 
-		setMy(client, network, channel, command, trigger, nickname, target, arguments, prefix);
+		setMy(client, network, channel, command, trigger, nickname, target, args, prefix);
 	},
 
-	viewProfile: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
-		var user = arguments[0];
-		var page = arguments[1];
+	viewProfile: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
+		var user = args[0];
+		var page = args[1];
 
 		if (page === undefined || isNaN(page))
 			page = 0;

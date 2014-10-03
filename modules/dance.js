@@ -1,9 +1,9 @@
 module.exports = {
-	doDance: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	doDance: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		var danceCount = 0;
 
-		var limit = arguments[0];
-		var speed = arguments[1] || 1;
+		var limit = args[0];
+		var speed = args[1] || 1;
 
 		if (isNaN(limit) || limit < 1) limit = 1;
 		limit = Math.min(limit, 50);

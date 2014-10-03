@@ -1,12 +1,12 @@
 module.exports = {
-	sendYo: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	sendYo: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		if (config.apis.yo !== undefined) {
 			var yoName = config.apis.yo.name;
 			var yoKey = config.apis.yo.key;
 		}
 
 		if (yoName !== undefined && yoKey !== undefined) {
-			var targetUser = arguments[0];
+			var targetUser = args[0];
 
 			if (targetUser.charAt(0) === '@') {
 				var alias = targetUser.substring(1).toLowerCase();
@@ -20,7 +20,7 @@ module.exports = {
 				rpc.emit('call', client, 'privmsg', [target, prefix + 'The nickname \'' + targetUser.substring(1) + '\' is invalid']);
 
 			else {
-				var link = arguments[1];
+				var link = args[1];
 				var validLink = true;
 				if (link !== undefined) {
 					var regexp = /(http|https):\/\/.*\..*/;

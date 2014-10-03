@@ -1,5 +1,5 @@
 module.exports = {
-	getEightBall: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	getEightBall: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		var answers = [
 			'It is certain', 'It is decidedly so', 'Without a doubt',
 			'Yes definitely', 'You may rely on it', 'As I see it, yes',

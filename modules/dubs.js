@@ -1,6 +1,6 @@
 module.exports = {
-	getDubs: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
-		var size = arguments[0];
+	getDubs: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
+		var size = args[0];
 
 		if (isNaN(size) || size < 1) size = 2;
 		size = Math.min(size, 10);

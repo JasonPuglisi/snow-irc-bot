@@ -1,5 +1,5 @@
 module.exports = {
-	getWeather: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	getWeather: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		if (config.apis.google !== undefined && config.apis.forecast !== undefined) {
 			var googleKey = config.apis.google.key;
 			var forecastKey = config.apis.forecast.key;
@@ -9,13 +9,13 @@ module.exports = {
 
 			var input;
 
-			if (arguments.length === 0) {
+			if (args.length === 0) {
 				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined)
 					input = profileData[client][nickname.toLowerCase()].location;
 			}
 
 			else
-				input = arguments.join(' ');
+				input = args.join(' ');
 
 			if (input !== undefined) {
 				var location = iconv.decode(new Buffer(input), 'ISO-8859-1');

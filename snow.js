@@ -128,10 +128,10 @@ events.on('message', function(msg) {
 
 // Process synchronize event
 function processSynchronize(clients) {
-	// Set process arguments
+	// Set process args
 	var file = process.argv[1];
 	var command = process.argv[2];
-	var arguments = process.argv.slice(3);
+	var args = process.argv.slice(3);
 
 	// Check command
 	switch(command) {
@@ -165,7 +165,7 @@ function processSynchronize(clients) {
 		// Start command
 		case 'start':
 			// Set targets
-			var targets = arguments;
+			var targets = args;
 
 			// Start target clients
 			createClients(clients, targets, function() {
@@ -177,7 +177,7 @@ function processSynchronize(clients) {
 		// Stop command
 		case 'stop':
 			// Set targets
-			var targets = arguments;
+			var targets = args;
 
 			// Stop target clients
 			destroyClients(clients, targets, function() {
@@ -189,7 +189,7 @@ function processSynchronize(clients) {
 		// Restart command
 		case 'restart':
 			// Set targets
-			var targets = arguments;
+			var targets = args;
 
 			// Stop target clients
 			destroyClients(clients, targets, function() {
@@ -251,10 +251,10 @@ function processPrivmsg(client, target, nickname, message) {
 		// Set channel
 		var channel = network.channels[findChannel(network, target.toLowerCase())];
 
-		// Set message, command, and arguments
+		// Set message, command, and args
 		var message = message.split(' ');
 		var command = message[0];
-		var arguments = message.slice(1);
+		var args = message.slice(1);
 
 		// Find command indexes
 		var commandIndexes = findCommand(network, channel, command);
@@ -265,13 +265,13 @@ function processPrivmsg(client, target, nickname, message) {
 			var command = config.commands[commandIndexes[0]];
 			var trigger = command.triggers[commandIndexes[1]];
 
-			// Set minimum arguments
-			var args = trigger.args || command.args;
+			// Set minimum args
+			var minArgs = trigger.minArgs || command.minArgs;
 
-			// If arguments meet minimum requirement
-			if (arguments.length >= args) {
+			// If args meet minimum requirement
+			if (args.length >= minArgs) {
 				// Run command
-				runCommand(client, network, channel, command, trigger, nickname, target, arguments);
+				runCommand(client, network, channel, command, trigger, nickname, target, args);
 			}
 		} else {
 			// Set message functions (channel functions, network functions, default functions)
@@ -339,7 +339,7 @@ function createClients(clients, targets, callback) {
 					if (secure === undefined) {
 						// If port is 6697
 						if (port === 6697) {
-							secure = true
+							secure = true;
 						}
 
 						// Else (port is not 6697)
@@ -446,7 +446,7 @@ function joinChannels(client, network) {
 }
 
 // Run command
-function runCommand(client, network, channel, command, trigger, nickname, target, arguments) {
+function runCommand(client, network, channel, command, trigger, nickname, target, args) {
 	// Set admin required (trigger admin, command admin, channel admin, network admin, default admin)
 	var admin = trigger.settings.admin;
 	if (admin === undefined) {
@@ -489,7 +489,7 @@ function runCommand(client, network, channel, command, trigger, nickname, target
 		var commandFunction = trigger.function || command.function;
 
 		// Call command function
-		global[commandFunction](client, network, channel, command, trigger, nickname, target, arguments, prefix);
+		global[commandFunction](client, network, channel, command, trigger, nickname, target, args, prefix);
 	}
 }
 
@@ -588,7 +588,7 @@ function findCommand(network, channel, target) {
 				}
 
 				// If command is not in blacklist
-				if (blacklist.indexOf(name) === -1 || (!cases && backlist.indexOf(name.toLowerCase()) === -1)) {
+				if (blacklist.indexOf(name) === -1 || (!cases && blacklist.indexOf(name.toLowerCase()) === -1)) {
 					// Add symbol to name
 					name = symbol + name;
 
@@ -623,7 +623,7 @@ function exitReady(force) {
 	else {
 		// Attempt to quit again in 250ms
 		setTimeout(function() {
-			exitReady(force)
+			exitReady(force);
 		}, 250);
 	}
 }

@@ -1,16 +1,16 @@
 module.exports = {
-	getVideo: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	getVideo: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		if (config.apis.google !== undefined)
 			var googleKey = config.apis.google.key;
 
 		if (googleKey !== undefined) {
-			if (arguments.length === 0) {
+			if (args.length === 0) {
 				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined)
 					var input = profileData[client][nickname.toLowerCase()].video;
 			}
 
 			else
-				var input = arguments.join(' ');
+				var input = args.join(' ');
 
 			if (input !== undefined) {
 				var video = iconv.decode(new Buffer(input), 'ISO-8859-1');

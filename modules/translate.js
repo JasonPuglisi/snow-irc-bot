@@ -1,13 +1,13 @@
 module.exports = {
-	getTranslation: function(client, network, channel, command, trigger, nickname, target, arguments, prefix) {
+	getTranslation: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
 		if (config.apis.microsoft !== undefined) {
 			var microsoftId = config.apis.microsoft.id;
 			var microsoftSecret = config.apis.microsoft.secret;
 		}
 		
 		if (microsoftId !== undefined && microsoftSecret !== undefined) {
-			var targetLang = arguments[0];
-			var input = iconv.decode(new Buffer(arguments.slice(1).join(' ')), 'ISO-8859-1');
+			var targetLang = args[0];
+			var input = iconv.decode(new Buffer(args.slice(1).join(' ')), 'ISO-8859-1');
 
 			var authUrl = 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/';
 			var scopeUrl = 'http://api.microsofttranslator.com';

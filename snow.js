@@ -109,18 +109,6 @@ events.on('message', function(msg) {
 			// Process privmsg event
 			processPrivmsg(client, target, nickname, message);
 		break;
-
-		// Closed event
-		case 'closed':
-			// Log closed event
-			console.log('[!] Closed and reconnecting');
-		break;
-
-		// Failed event
-		case 'failed':
-			// Log failed event
-			console.log('[!] Closed and not reconnecting');
-		break;
 	}
 });
 

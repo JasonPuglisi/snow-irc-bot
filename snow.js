@@ -292,10 +292,18 @@ function createClients(clients, targets) {
 					// Set port (network port, 6667)
 					var port = network.connection.port || 6667;
 
-					// Set secure (network secure, disabled)
+					// Set secure (network secure, enabled on 6697, disabled)
 					var secure = network.connection.secure;
 					if (secure === undefined) {
-						secure = false;
+						// If port is 6697
+						if (port === 6697) {
+							secure = true
+						}
+
+						// Else (port is not 6697)
+						else {
+							secure = false;
+						}
 					}
 
 					// Set password (network password)

@@ -137,8 +137,20 @@ function processSynchronize(clients) {
 	switch(command) {
 		// No command
 		case undefined:
-			// Log clients and resume execution
-			console.log('Resuming execution: ' + clients.join(' '));
+			// If there are active clients
+			if (clients.length > 0) {
+				// Log clients and resume execution
+				console.log('Resuming execution: ' + clients.join(' '));
+			}
+
+			// Else (there are no active clients)
+			else {
+				// Log no active clients
+				console.log('[!] No active clients');
+
+				// Exit script with error
+				process.exit(1);
+			}
 		break;
 
 		// List command
@@ -171,6 +183,21 @@ function processSynchronize(clients) {
 			destroyClients(clients, targets, function() {
 				// Exit script
 				process.exit();
+			});
+		break;
+
+		// Restart command
+		case 'restart':
+			// Set targets
+			var targets = arguments;
+
+			// Stop target clients
+			destroyClients(clients, targets, function() {
+				// Start target clients and ignore client list
+				createClients([], targets, function() {
+					// Exit script when ready
+					exitReady();
+				});
 			});
 		break;
 	}

@@ -497,21 +497,13 @@ function findCommand(network, channel, target) {
 					}
 				}
 
-				// If case sensitivity disabled
-				if (!cases) {
-					// Remove case sensitivity from symbol, name, and target
-					symbol = symbol.toLowerCase();
-					name = name.toLowerCase();
-					target = target.toLowerCase();
-				}
-
 				// If command is not in blacklist
-				if (blacklist.indexOf(name) === -1) {
+				if (blacklist.indexOf(name) === -1 || (!cases && backlist.indexOf(name.toLowerCase()) === -1)) {
 					// Add symbol to name
 					name = symbol + name;
 
 					// If trigger is target
-					if (name === target) {
+					if (name === target || (!cases && name.toLowerCase() === target.toLowerCase())) {
 						// Return match indexes
 						return [i, j];
 					}

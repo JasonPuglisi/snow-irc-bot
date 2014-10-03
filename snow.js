@@ -355,7 +355,7 @@ function destroyClients(clients, targets, callback) {
 			console.log('Stopping ' + target);
 
 			// Destroy client
-			rpc.emit('destroyClient', client);
+			rpc.emit('destroyClient', target);
 		}
 
 		// Else (target not in clients)

@@ -3,8 +3,8 @@
 global.configFile = 'config.json';
 global.config = require('./' + configFile);
 
-global.myFile = 'my.json';
-global.myData = require('./' + myFile);
+global.profileFile = 'profiles.json';
+global.profileData = require('./' + profileFile);
 
 // Require dependencies
 for (var i in config.dependencies) {

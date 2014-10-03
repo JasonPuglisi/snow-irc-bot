@@ -11,9 +11,9 @@ module.exports = {
 			if (targetUser.charAt(0) === '@') {
 				var alias = targetUser.substring(1).toLowerCase();
 
-				if (myData[client] !== undefined && myData[client][alias] !== undefined)
-					if (myData[client][alias].yo !== undefined)
-						targetUser = myData[client][alias].yo;
+				if (profileData[client] !== undefined && profileData[client][alias] !== undefined)
+					if (profileData[client][alias].yo !== undefined)
+						targetUser = profileData[client][alias].yo;
 			}
 
 			if (targetUser.charAt(0) === '@')

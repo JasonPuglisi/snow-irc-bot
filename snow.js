@@ -51,6 +51,10 @@ global.megahal = new jsmegahal(4);
 
 megahal.addMass(fs.readFileSync('brain.txt', 'utf8'));
 
+// Set global variables
+var waitingRegistered = [];
+var waitingChannels = [];
+
 /* EVENT LISTENERS */
 
 // Set irc-factory message event listener
@@ -141,8 +145,8 @@ function processSynchronize(clients) {
 
 			// Start target clients
 			createClients(clients, targets, function() {
-				// Exit script
-				process.exit();
+				// Exit script when ready
+				exitReady();
 			});
 		break;
 
@@ -190,6 +194,9 @@ function processRegistered(client, nickname) {
 	if (!mask) {
 		rpc.emit('call', client, 'mode', [nickname, '-x']);
 	}
+
+	// Remove client from registered waitlist
+	waitingRegistered.splice(waitingRegistered.indexOf(client), 1);
 
 	// Join all channels on network
 	joinChannels(client, network);
@@ -315,6 +322,10 @@ function createClients(clients, targets, callback) {
 						secure: secure,
 						password: password
 					});
+
+					// Add client to registered and channels waitlists
+					waitingRegistered.push(name);
+					waitingChannels.push(name);
 				}
 
 				// Else (not enabled)
@@ -390,6 +401,9 @@ function joinChannels(client, network) {
 			rpc.emit('call', client, 'join', [channel.name]);
 		}
 	}
+
+	// Remove client from channels waitlist
+	waitingChannels.splice(waitingChannels.indexOf(client), 1);
 }
 
 // Run command
@@ -551,4 +565,26 @@ function findCommand(network, channel, target) {
 
 	// Return no match
 	return [-1];
+}
+// Exit script when ready
+function exitReady(force) {
+	// If forced
+	if (force) {
+		// Exit process with error
+		process.exit(1);
+	}
+
+	// Else (not forced) if registered and channel waitlists are empty
+	else if (waitingRegistered.length === 0 && waitingChannels.length === 0) {
+		// Exit process
+		process.exit();
+	}
+
+	// Else (registered and channel waitlists are not empty)
+	else {
+		// Attempt to quit again in 250ms
+		setTimeout(function() {
+			exitReady(force)
+		}, 250);
+	}
 }

@@ -281,6 +281,15 @@ function processPrivmsg(client, target, nickname, message) {
 
 // Start target clients
 function createClients(clients, targets, callback) {
+	// If no targets
+	if (targets.length === 0) {
+		// For each network
+		for (var i in config.networks) {
+			// Add network to targets
+			targets.push(config.networks[i].name);
+		}
+	}
+
 	// For each target
 	for (var i in targets) {
 		// Find network
@@ -382,6 +391,15 @@ function createClients(clients, targets, callback) {
 
 // Stop target clients
 function destroyClients(clients, targets, callback) {
+	// If no targets
+	if (targets.length === 0) {
+		// For each network
+		for (var i in config.networks) {
+			// Add network to targets
+			targets.push(config.networks[i].name);
+		}
+	}
+
 	// For each target
 	for (var i in targets) {
 		// Set target

@@ -56,7 +56,9 @@
     },
     {
       "name": "MyOther",
-      "settings": {},
+      "settings": {
+        "admin": true
+      },
       "triggers": [
         {
           "name": "myother",

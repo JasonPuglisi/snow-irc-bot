@@ -129,7 +129,7 @@ function processSynchronize(clients) {
 			// If there are active clients
 			if (clients.length > 0) {
 				// Log clients and resume execution
-				console.log('Resuming execution: ' + clients.join(' '));
+				console.log('Resuming execution (Clients: ' + clients.join(', ') + ')');
 			}
 
 			// Else (there are no active clients)
@@ -144,8 +144,17 @@ function processSynchronize(clients) {
 
 		// List command
 		case 'list':
-			// Log clients
-			console.log('Clients: ' + clients.join(' '));
+			// If there are active clients
+			if (clients.length > 0) {
+				// Log clients
+				console.log('Clients: ' + clients.join(', '));
+			}
+
+			// Else (there are no active clients)
+			else {
+				// Log no active clients
+				console.log('[!] No active clients');
+			}
 
 			// Exit script
 			process.exit();
@@ -199,6 +208,18 @@ function processSynchronize(clients) {
 
 			// Create network
 			createNetwork(name, address, password, function() {
+				// Exit script
+				process.exit();
+			});
+		break;
+
+		// Help command
+		case 'help':
+			// Set page
+			var page = args[0];
+
+			// Display help
+			getHelp(page, function() {
 				// Exit script
 				process.exit();
 			});
@@ -316,10 +337,19 @@ function processPrivmsg(client, target, nickname, message) {
 function createClients(clients, targets, callback) {
 	// If no targets
 	if (targets.length === 0) {
-		// For each network
-		for (var i in config.networks) {
-			// Add network to targets
-			targets.push(config.networks[i].name);
+		// If there are any networks
+		if (config.networks.length > 0) {
+			// For each network
+			for (var i in config.networks) {
+				// Add network to targets
+				targets.push(config.networks[i].name);
+			}
+		}
+
+		// Else (there are no networks)
+		else {
+			// Log no networks
+			console.log('[!] Network list empty');
 		}
 	}
 
@@ -426,10 +456,19 @@ function createClients(clients, targets, callback) {
 function destroyClients(clients, targets, callback) {
 	// If no targets
 	if (targets.length === 0) {
-		// For each network
-		for (var i in config.networks) {
-			// Add network to targets
-			targets.push(config.networks[i].name);
+		// If there are any clients
+		if (clients.length > 0) {
+			// For each network
+			for (var i in clients) {
+				// Add network to targets
+				targets.push(clients[i]);
+			}
+		}
+
+		// Else (there are no clients)
+		else {
+			// Log no clients
+			console.log('[!] No active clients');
 		}
 	}
 
@@ -545,6 +584,9 @@ function joinChannels(client, network) {
 
 	// Remove client from channels waitlist
 	waitingChannels.splice(waitingChannels.indexOf(client), 1);
+
+	// Log ready
+	console.log(client + ' ready');
 }
 
 // Run command
@@ -760,6 +802,103 @@ function findCommand(network, channel, target, key) {
 
 	// Return no match
 	return [-1];
+}
+
+// Show help page
+function getHelp(page, callback) {
+	// Set output message
+	var message = [];
+
+	// Set file
+	var file = process.argv[1];
+	file = file.substring(file.lastIndexOf('/') + 1);
+
+	// Check page
+	switch(page) {
+		// List page
+		case 'list':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' list',
+				'- Description:',
+				'  Lists all clients running in background'
+			];
+		break;
+
+		// Start page
+		case 'start':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' start [clients]',
+				'- Description:',
+				'  Starts clients specified in space-separated [clients] list',
+				'  Starts all clients if none specified'
+			];
+		break;
+
+		// Stop page
+		case 'stop':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' stop [clients]',
+				'- Description:',
+				'  Stops clients specified in space-separated [clients] list',
+				'  Stops all clients if none specified'
+			];
+		break;
+
+		// Restart page
+		case 'restart':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' restart [clients]',
+				'- Description:',
+				'  Restarts clients specified in space-separated [clients] list',
+				'  Restarts all clients if none specified'
+			];
+		break;
+
+		// Create page
+		case 'create':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' create <name> <server[:<port>]> [password]',
+				'- Description:',
+				'  Creates network <name> with server <server>, port <port>, and password [password]',
+				'  Sets port to 6667 if none specified',
+				'  Sets connection to secure if port 6697',
+				'  Ignores server password if none specified'
+			];
+		break;
+
+		// Help page
+		case 'help':
+		// No page
+		case undefined:
+		// Invalid page
+		default:
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' help [page]',
+				'- Available help pages:',
+				'  list, start, stop, restart, create',
+				'- To resume client execution:',
+				'  node ' + file
+			];
+		break;
+	}
+
+	// Log output
+	console.log(message.join('\n'));
+
+	// Send callback
+	callback();
 }
 
 // Exit script when ready

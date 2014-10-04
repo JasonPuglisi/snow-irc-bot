@@ -189,6 +189,29 @@ function processSynchronize(clients) {
 				});
 			});
 		break;
+
+		// Create command
+		case 'create':
+			// Set name, address, and optional password
+			var name = args[0];
+			var address = args[1];
+			var password = args[3];
+
+			// Create network
+			createNetwork(name, address, password, function() {
+				// Exit script
+				process.exit();
+			});
+		break;
+
+		// Other command
+		default:
+			// Log invalid command
+			console.log('[!] Invalid command');
+
+			// Exit script
+			process.exit();
+		break;
 	}
 }
 
@@ -432,6 +455,66 @@ function destroyClients(clients, targets, callback) {
 	}
 
 	// Send callback
+	callback();
+}
+
+// Create network and save to config
+function createNetwork(name, address, password, callback) {
+	// If network doesn't exist already
+	if (findNetwork(name) === -1) {
+		// Create basic network
+		var network = {
+			'name': name,
+			'identity': {},
+			'settings': {},
+			'connection': {
+				'server': address
+			},
+			'channels': [],
+			'management': {
+				'admins': []
+			}
+		}
+
+		// Set colon index
+		var colonIndex = address.indexOf(':');
+
+		// If the address has a port in it
+		if (colonIndex !== -1) {
+			// Update server and port
+			network.connection.server = address.substring(0, colonIndex);
+			network.connection.port = address.substring(colonIndex + 1);
+
+			// If port non numeric or negative
+			if (isNaN(network.connection.port) || network.connection.port < 0) {
+				// Remove custom port
+				delete network.connection.port;
+			}
+
+			// Else (port is numeric and positive)
+			else {
+				// Update port as integer
+				network.connection.port = parseInt(network.connection.port);
+			}
+		}
+
+		// If password is defined
+		if (password !== undefined) {
+			network.connection.password = password;
+		}
+
+		// Add network to config
+		config.networks.push(network);
+
+		// Save config
+		fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+	}
+
+	// Else (network exists already)
+	else {
+		console.log('[!] ' + name + ' already exists')
+	}
+
 	callback();
 }
 

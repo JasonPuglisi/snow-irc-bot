@@ -2,7 +2,7 @@ module.exports = {
 	processResponse: function(client, network, channel, nickname, target, message) {
 		var text = message.join(' ');
 
-		var name = network.identity.nick || config.identity.nick;
+		var name = tempNick || network.identity.nick || config.identity.nick;
 
 		var log = channel.settings.log;
 		if (log === undefined) {

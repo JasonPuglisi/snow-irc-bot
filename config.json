@@ -46,7 +46,7 @@
           "settings": {}
         }
       ],
-      "args": 1,
+      "minArgs": 1,
       "function": "setMy"
     },
     {
@@ -60,7 +60,7 @@
           "settings": {}
         }
       ],
-      "args": 2,
+      "minArgs": 2,
       "function": "setMyOther"
     },
     {
@@ -72,7 +72,7 @@
           "settings": {}
         }
       ],
-      "args": 1,
+      "minArgs": 1,
       "function": "viewProfile"
     },
     {
@@ -84,7 +84,7 @@
           "settings": {}
         }
       ],
-      "args": 0,
+      "minArgs": 0,
       "function": "getWeather"
     },
     {
@@ -96,7 +96,7 @@
           "settings": {}
         }
       ],
-      "args": 0,
+      "minArgs": 0,
       "function": "getVideo"
     },
     {
@@ -108,7 +108,7 @@
           "settings": {}
         }
       ],
-      "args": 2,
+      "minArgs": 2,
       "function": "getTranslation"
     },
     {
@@ -120,7 +120,7 @@
           "settings": {}
         }
       ],
-      "args": 1,
+      "minArgs": 1,
       "function": "sendYo"
     },
     {
@@ -132,7 +132,7 @@
           "settings": {}
         }
       ],
-      "args": 0,
+      "minArgs": 0,
       "function": "getDubs"
     },
     {
@@ -144,7 +144,7 @@
           "settings": {}
         }
       ],
-      "args": 0,
+      "minArgs": 0,
       "function": "getEightBall"
     },
     {
@@ -156,8 +156,128 @@
           "settings": {}
         }
       ],
-      "args": 1,
+      "minArgs": 1,
       "function": "doDance"
+    },
+    {
+      "name": "Say",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "say",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "sendMessage"
+    },
+    {
+      "name": "Notice",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "notice",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "sendNotice"
+    },
+    {
+      "name": "Join",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "join",
+          "settings": {}
+        }
+      ],
+      "minArgs": 1,
+      "function": "joinChannel"
+    },
+    {
+      "name": "Part",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "part",
+          "settings": {}
+        }
+      ],
+      "minArgs": 1,
+      "function": "partChannel"
+    },
+    {
+      "name": "Mode",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "mode",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "setMode"
+    },
+    {
+      "name": "Topic",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "topic",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "setTopic"
+    },
+    {
+      "name": "Me",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "me",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "doAction"
+    },
+    {
+      "name": "Nick",
+      "settings": {
+        "publicCmd": false,
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "nick",
+          "settings": {}
+        }
+      ],
+      "minArgs": 1,
+      "function": "setNick"
     }
   ],
   "apis": {}

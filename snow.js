@@ -54,6 +54,7 @@ megahal.addMass(fs.readFileSync('brain.txt', 'utf8'));
 // Set global variables
 var waitingRegistered = [];
 var waitingChannels = [];
+global.tempNick = '';
 
 /* EVENT LISTENERS */
 
@@ -234,45 +235,54 @@ function processPrivmsg(client, target, nickname, message) {
 	// Find and set network
 	var network = config.networks[findNetwork(client)];
 
+	// Declare channel
+	var channel;
+
 	// If target is channel
-	if (target.charAt(0) === '#') {
-		// Set channel
-		var channel = network.channels[findChannel(network, target.toLowerCase())];
+	if (isChannel(target)) {
+		// Set channel index
+		channel = network.channels[findChannel(network, target.toLowerCase())];
+	}
 
-		// Set message, command, and args
-		var message = message.split(' ');
-		var command = message[0];
-		var args = message.slice(1);
+	// If channel is undefined
+	if (channel === undefined) {
+		// Create fake channel
+		channel = {'settings':{}};
+	}
 
-		// Find command indexes
-		var commandIndexes = findCommand(network, channel, command);
+	// Set message, command, and args
+	var message = message.split(' ');
+	var command = message[0];
+	var args = message.slice(1);
 
-		// If command is valid
-		if (commandIndexes[0] !== -1) {
-			// Set command and trigger
-			var command = config.commands[commandIndexes[0]];
-			var trigger = command.triggers[commandIndexes[1]];
+	// Find command indexes
+	var commandIndexes = findCommand(network, channel, target, command);
 
-			// Set minimum args
-			var minArgs = trigger.args || command.args;
+	// If command is valid
+	if (commandIndexes[0] !== -1) {
+		// Set command and trigger
+		var command = config.commands[commandIndexes[0]];
+		var trigger = command.triggers[commandIndexes[1]];
 
-			// If args meet minimum requirement
-			if (args.length >= minArgs) {
-				// Run command
-				runCommand(client, network, channel, command, trigger, nickname, target, args);
-			}
-		} else {
-			// Set message functions (channel functions, network functions, default functions)
-			var functions = channel.settings.functions || network.settings.functions || config.settings.functions;
+		// Set minimum args (trigger minArgs, command minArgs)
+		var minArgs = trigger.minArgs || command.minArgs;
 
-			// For each message function
-			for (var i in functions) {
-				// Set function
-				var messageFunction = functions[i];
+		// If args meet minimum requirement
+		if (args.length >= minArgs) {
+			// Run command
+			runCommand(client, network, channel, command, trigger, nickname, target, args);
+		}
+	} else {
+		// Set message functions (channel functions, network functions, default functions)
+		var functions = channel.settings.functions || network.settings.functions || config.settings.functions;
 
-				// Call message function
-				global[messageFunction](client, network, channel, nickname, target, message);
-			}
+		// For each message function
+		for (var i in functions) {
+			// Set function
+			var messageFunction = functions[i];
+
+			// Call message function
+			global[messageFunction](client, network, channel, nickname, target, message);
 		}
 	}
 }
@@ -453,6 +463,12 @@ function joinChannels(client, network) {
 
 // Run command
 function runCommand(client, network, channel, command, trigger, nickname, target, args) {
+	// If target is not channel
+	if (!isChannel(target)) {
+		// Set target to nickname of sender
+		target = nickname;
+	}
+
 	// Set admin required (trigger admin, command admin, channel admin, network admin, default admin)
 	var admin = trigger.settings.admin;
 	if (admin === undefined) {
@@ -544,7 +560,7 @@ function findChannel(network, target) {
 }
 
 // Find command index
-function findCommand(network, channel, target) {
+function findCommand(network, channel, target, key) {
 	// Set blacklist
 	var blacklist = channel.settings.blacklist || network.settings.blacklist || config.settings.blacklist;
 
@@ -572,36 +588,84 @@ function findCommand(network, channel, target) {
 
 			// If enabled
 			if (enabled) {
-				// Set symbol (trigger symbol, command symbol, channel symbol, network symbol, default symbol)
-				var symbol = trigger.settings.symbol || command.settings.symbol || channel.settings.symbol || network.settings.symbol || config.settings.symbol;
-				if (trigger.settings.symbol === '') {
-					symbol = '';
-				}
-
-				// Set case sensitivity (trigger cases, command cases, channel cases, network cases, default cases)
-				var cases = trigger.settings.cases;
-				if (cases === undefined) {
-					cases = command.settings.cases;
-					if (cases === undefined) {
-						cases = channel.settings.cases;
-						if (cases === undefined) {
-							cases = network.settings.cases;
-							if (cases === undefined) {
-								cases = config.settings.cases;
+				// Set public command (trigger publicCmd, command publicCmd, channel publicCmd, network publicCmd, default publicCmd, true)
+				var publicCmd = trigger.settings.publicCmd;
+				if (publicCmd === undefined) {
+					publicCmd = command.settings.publicCmd;
+					if (publicCmd === undefined) {
+						publicCmd = channel.settings.publicCmd;
+						if (publicCmd === undefined) {
+							publicCmd = network.settings.publicCmd;
+							if (publicCmd === undefined) {
+								publicCmd = config.settings.publicCmd;
+								if (publicCmd === undefined) {
+									publicCmd = true;
+								}
 							}
 						}
 					}
 				}
 
-				// If command is not in blacklist
-				if (blacklist.indexOf(name) === -1 || (!cases && blacklist.indexOf(name.toLowerCase()) === -1)) {
-					// Add symbol to name
-					name = symbol + name;
+				// Set private command (trigger privateCmd, command privateCmd, channel privateCmd, network privateCmd, default privateCmd, inverse public command)
+				var privateCmd = trigger.settings.privateCmd;
+				if (privateCmd === undefined) {
+					privateCmd = command.settings.privateCmd;
+					if (privateCmd === undefined) {
+						privateCmd = channel.settings.privateCmd;
+						if (privateCmd === undefined) {
+							privateCmd = network.settings.privateCmd;
+							if (privateCmd === undefined) {
+								privateCmd = config.settings.privateCmd;
+								if (privateCmd === undefined) {
+									privateCmd = !publicCmd;
+								}
+							}
+						}
+					}
+				}
 
-					// If trigger is target
-					if (name === target || (!cases && name.toLowerCase() === target.toLowerCase())) {
-						// Return match indexes
-						return [i, j];
+				// If target is channel and command is public or target is not channel and command is private
+				if ((isChannel(target) && publicCmd) || (!isChannel(target) && privateCmd)) {
+					// Set symbol (trigger symbol, command symbol, channel symbol, network symbol, default symbol)
+					var symbol = trigger.settings.symbol;
+					if (symbol === undefined) {
+						symbol = command.settings.symbol;
+						if (symbol === undefined) {
+							symbol = channel.settings.symbol;
+							if (symbol === undefined) {
+								symbol = network.settings.symbol;
+								if (symbol === undefined) {
+									symbol = config.settings.symbol;
+								}
+							}
+						}
+					}
+
+					// Set case sensitivity (trigger cases, command cases, channel cases, network cases, default cases)
+					var cases = trigger.settings.cases;
+					if (cases === undefined) {
+						cases = command.settings.cases;
+						if (cases === undefined) {
+							cases = channel.settings.cases;
+							if (cases === undefined) {
+								cases = network.settings.cases;
+								if (cases === undefined) {
+									cases = config.settings.cases;
+								}
+							}
+						}
+					}
+
+					// If command is not in blacklist
+					if (blacklist.indexOf(name) === -1 || (!cases && blacklist.indexOf(name.toLowerCase()) === -1)) {
+						// Add symbol to name
+						name = symbol + name;
+
+						// If trigger is key
+						if (name === key || (!cases && name.toLowerCase() === key.toLowerCase())) {
+							// Return match indexes
+							return [i, j];
+						}
 					}
 				}
 			}
@@ -611,6 +675,7 @@ function findCommand(network, channel, target) {
 	// Return no match
 	return [-1];
 }
+
 // Exit script when ready
 function exitReady(force) {
 	// If forced
@@ -632,4 +697,8 @@ function exitReady(force) {
 			exitReady(force);
 		}, 250);
 	}
+}
+
+global.isChannel = function isChannel(target) {
+	return (target.indexOf('#') === 0);
 }

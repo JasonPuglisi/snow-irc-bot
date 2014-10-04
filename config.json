@@ -30,7 +30,12 @@
       "connection": {
         "server": "irc.esper.net"
       },
-      "channels": [],
+      "channels": [
+        {
+          "name": "#SnowBot",
+          "settings": {}
+        }
+      ],
       "management": {
         "admins": []
       }

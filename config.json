@@ -24,18 +24,13 @@
   },
   "networks": [
     {
-      "name": "synIRC",
+      "name": "Esper",
       "identity": {},
       "settings": {},
       "connection": {
-        "server": "irc.synirc.net"
+        "server": "irc.esper.net"
       },
-      "channels": [
-        {
-          "name": "#snowbot",
-          "settings": {}
-        }
-      ],
+      "channels": [],
       "management": {
         "admins": []
       }

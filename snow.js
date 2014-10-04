@@ -508,6 +508,9 @@ function createNetwork(name, address, password, callback) {
 
 		// Save config
 		fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+		// Log network created
+		console.log(name + ' created');
 	}
 
 	// Else (network exists already)

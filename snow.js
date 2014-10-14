@@ -932,6 +932,17 @@ function getHelp(page, callback) {
 			];
 		break;
 
+		// Destroy page
+		case 'destroy':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' destroy <name>',
+				'- Description:',
+				'  Stops and destroys network <name>'
+			];
+		break;
+
 		// Help page
 		case 'help':
 		// No page
@@ -943,7 +954,7 @@ function getHelp(page, callback) {
 				'- Usage:',
 				'  node ' + file + ' help [page]',
 				'- Available help pages:',
-				'  list, start, stop, restart, create',
+				'  list, start, stop, restart, create, destroy',
 				'- To resume client execution:',
 				'  node ' + file
 			];

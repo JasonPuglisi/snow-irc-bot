@@ -225,6 +225,20 @@ function processSynchronize(clients) {
 			});
 		break;
 
+		// Admin command
+		case 'admin':
+			// Set action, network, and nick
+			var action = args[0];
+			var network = args[1];
+			var nick = args[2];
+
+			// Set admin options
+			setAdmin(action, network, nick, function() {
+				// Exit script
+				process.exit();
+			});
+		break;
+
 		// Help command
 		case 'help':
 			// Set page
@@ -616,6 +630,84 @@ function destroyNetwork(name, callback) {
 	callback();
 }
 
+// Set admin options and save to config
+function setAdmin(action, network, nick, callback) {
+	// If action, network, and nick are specified
+	if (action && network && nick) {
+		// Find network index
+		var networkIndex = findNetwork(network);
+
+		// If network exists
+		if (networkIndex !== -1) {
+			// Set admin list
+			var admins = config.networks[networkIndex].management.admins;
+
+			// Set admin index
+			var adminIndex = admins.indexOf(nick.toLowerCase());
+
+			// Check action
+			switch (action) {
+				// Add action
+				case 'add':
+					// If admin does not exist
+					if (adminIndex === -1) {
+						// Add admin
+						admins.push(nick.toLowerCase());
+
+						// Save config
+						fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+						// Log addition
+						console.log(nick + ' added to admins for ' + network);
+					}
+
+					// Else (admin exists)
+					else {
+						console.log('[!] ' + nick + ' is already an admin for ' + network);
+					}
+				break;
+
+				// Remove action
+				case 'remove':
+					// If admin exists
+					if (adminIndex !== -1) {
+						// Remove admin
+						admins.splice(adminIndex, 1);
+
+						// Save config
+						fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+						// Log removal
+						console.log(nick + ' removed from admins for ' + network);
+					}
+
+					// Else (admin does not exist)
+					else {
+						console.log('[!] ' + nick + ' is not an admin for ' + network);
+					}
+				break;
+
+				// Invalid action
+				default:
+					console.log('[!] Invalid action');
+				break;
+			}
+		}
+
+		// Else (network does not exist)
+		else {
+			console.log('[!] ' + network + ' does not exist');
+		}
+	}
+
+	// Else (network or nick not specified)
+	else {
+		console.log('[!] Action, network, or nick not specified');
+	}
+
+	callback();
+}
+
 // Join all channels on network
 function joinChannels(client, network) {
 	// For each channel
@@ -943,6 +1035,18 @@ function getHelp(page, callback) {
 			];
 		break;
 
+		// Admin page
+		case 'admin':
+			// Update message
+			message = [
+				'- Usage:',
+				'  node ' + file + ' admin <action> <network> <nick>',
+				'- Description:',
+				'  Sets nick <nick> on admin list of network <network> based on action <action>',
+				'  Action can be \'add\' or \'remove\''
+			];
+		break;
+
 		// Help page
 		case 'help':
 		// No page
@@ -954,7 +1058,7 @@ function getHelp(page, callback) {
 				'- Usage:',
 				'  node ' + file + ' help [page]',
 				'- Available help pages:',
-				'  list, start, stop, restart, create, destroy',
+				'  list, start, stop, restart, create, destroy, admin',
 				'- To resume client execution:',
 				'  node ' + file
 			];

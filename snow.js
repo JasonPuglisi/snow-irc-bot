@@ -213,6 +213,18 @@ function processSynchronize(clients) {
 			});
 		break;
 
+		// Destroy command
+		case 'destroy':
+			// Set name
+			var name = args[0];
+
+			// Destroy network
+			destroyNetwork(name, function() {
+				// Exit script
+				process.exit();
+			});
+		break;
+
 		// Help command
 		case 'help':
 			// Set page
@@ -555,6 +567,34 @@ function createNetwork(name, address, password, callback) {
 	// Else (network exists already)
 	else {
 		console.log('[!] ' + name + ' already exists')
+	}
+
+	callback();
+}
+
+// Destroy network and remove from config
+function destroyNetwork(name, callback) {
+	// Find network index
+	var networkIndex = findNetwork(name);
+
+	// If network exists
+	if (networkIndex !== -1) {
+		// Make sure client isn't running
+		destroyClients([], [name], function() {
+			// Remove network
+			config.networks.splice(networkIndex, 1);
+
+			// Save config
+			fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+			// Log network destroyed
+			console.log(name + ' destroyed');
+		});
+	}
+
+	// Else (network does not exist)
+	else {
+		console.log('[!] ' + name + ' does not exist');
 	}
 
 	callback();

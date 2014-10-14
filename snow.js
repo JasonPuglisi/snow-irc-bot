@@ -511,62 +511,70 @@ function destroyClients(clients, targets, callback) {
 
 // Create network and save to config
 function createNetwork(name, address, password, callback) {
-	// If network doesn't exist already
-	if (findNetwork(name) === -1) {
-		// Create basic network
-		var network = {
-			'name': name,
-			'identity': {},
-			'settings': {},
-			'connection': {
-				'server': address
-			},
-			'channels': [],
-			'management': {
-				'admins': []
-			}
-		}
-
-		// Set colon index
-		var colonIndex = address.indexOf(':');
-
-		// If the address has a port in it
-		if (colonIndex !== -1) {
-			// Update server and port
-			network.connection.server = address.substring(0, colonIndex);
-			network.connection.port = address.substring(colonIndex + 1);
-
-			// If port non numeric or negative
-			if (isNaN(network.connection.port) || network.connection.port < 0) {
-				// Remove custom port
-				delete network.connection.port;
+	// If name and address are specified
+	if (name && address) {
+		// If network doesn't exist already
+		if (findNetwork(name) === -1) {
+			// Create basic network
+			var network = {
+				'name': name,
+				'identity': {},
+				'settings': {},
+				'connection': {
+					'server': address
+				},
+				'channels': [],
+				'management': {
+					'admins': []
+				}
 			}
 
-			// Else (port is numeric and positive)
-			else {
-				// Update port as integer
-				network.connection.port = parseInt(network.connection.port);
+			// Set colon index
+			var colonIndex = address.indexOf(':');
+
+			// If the address has a port in it
+			if (colonIndex !== -1) {
+				// Update server and port
+				network.connection.server = address.substring(0, colonIndex);
+				network.connection.port = address.substring(colonIndex + 1);
+
+				// If port non numeric or negative
+				if (isNaN(network.connection.port) || network.connection.port < 0) {
+					// Remove custom port
+					delete network.connection.port;
+				}
+
+				// Else (port is numeric and positive)
+				else {
+					// Update port as integer
+					network.connection.port = parseInt(network.connection.port);
+				}
 			}
+
+			// If password is defined
+			if (password !== undefined) {
+				network.connection.password = password;
+			}
+
+			// Add network to config
+			config.networks.push(network);
+
+			// Save config
+			fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+			// Log network created
+			console.log(name + ' created');
 		}
 
-		// If password is defined
-		if (password !== undefined) {
-			network.connection.password = password;
+		// Else (network exists already)
+		else {
+			console.log('[!] ' + name + ' already exists');
 		}
-
-		// Add network to config
-		config.networks.push(network);
-
-		// Save config
-		fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
-
-		// Log network created
-		console.log(name + ' created');
 	}
 
-	// Else (network exists already)
+	// Else (name or network not specified)
 	else {
-		console.log('[!] ' + name + ' already exists')
+		console.log('[!] Name or address not specified');
 	}
 
 	callback();
@@ -574,27 +582,35 @@ function createNetwork(name, address, password, callback) {
 
 // Destroy network and remove from config
 function destroyNetwork(name, callback) {
-	// Find network index
-	var networkIndex = findNetwork(name);
+	// If name is specified
+	if (name) {
+		// Find network index
+		var networkIndex = findNetwork(name);
 
-	// If network exists
-	if (networkIndex !== -1) {
-		// Make sure client isn't running
-		destroyClients([], [name], function() {
-			// Remove network
-			config.networks.splice(networkIndex, 1);
+		// If network exists
+		if (networkIndex !== -1) {
+			// Make sure client isn't running
+			destroyClients([], [name], function() {
+				// Remove network
+				config.networks.splice(networkIndex, 1);
 
-			// Save config
-			fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+				// Save config
+				fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
 
-			// Log network destroyed
-			console.log(name + ' destroyed');
-		});
+				// Log network destroyed
+				console.log(name + ' destroyed');
+			});
+		}
+
+		// Else (network does not exist)
+		else {
+			console.log('[!] ' + name + ' does not exist');
+		}
 	}
 
-	// Else (network does not exist)
+	// Else (name not specified)
 	else {
-		console.log('[!] ' + name + ' does not exist');
+		console.log('[!] Name not specified');
 	}
 
 	callback();

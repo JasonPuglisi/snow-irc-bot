@@ -22,25 +22,7 @@
     "respond": true,
     "functions": ["processResponse"]
   },
-  "networks": [
-    {
-      "name": "Esper",
-      "identity": {},
-      "settings": {},
-      "connection": {
-        "server": "irc.esper.net"
-      },
-      "channels": [
-        {
-          "name": "#SnowBot",
-          "settings": {}
-        }
-      ],
-      "management": {
-        "admins": []
-      }
-    }
-  ],
+  "networks": [],
   "commands": [
     {
       "name": "My",

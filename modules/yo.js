@@ -27,26 +27,24 @@ module.exports = {
 					var validLink = regexp.test(link);
 				}
 
-				if (validLink) {
-					var yoUrl = 'http://api.justyo.co/yo/';
+				if (!validLink)
+					link = undefined;
 
-					request.post(yoUrl, {
-						form: {
-							api_token: yoKey,
-							username: targetUser,
-							link: link
-						}
-					}, function (error, response, body) {
-						if (!error && response.statusCode === 200)
-							rpc.emit('call', client, 'privmsg', [target, prefix + 'Sent a Yo to ' + targetUser.toUpperCase() + ' (Make sure they\'ve sent a Yo to ' + yoName.toUpperCase() + ' before)']);
+				var yoUrl = 'http://api.justyo.co/yo/';
 
-						else
-							rpc.emit('call', client, 'privmsg', [target, prefix + 'The Yo to ' + targetUser.toUpperCase() + ' is invalid (Wait a minute and try again)']);
-					});
-				}
+				request.post(yoUrl, {
+					form: {
+						api_token: yoKey,
+						username: targetUser,
+						link: link
+					}
+				}, function (error, response, body) {
+					if (!error && response.statusCode === 200)
+						rpc.emit('call', client, 'privmsg', [target, prefix + 'Sent a Yo to ' + targetUser.toUpperCase() + ' (Make sure they\'ve sent a Yo to ' + yoName.toUpperCase() + ' before)']);
 
-				else
-					rpc.emit('call', client, 'privmsg', [target, prefix + 'The link \'' + link + '\' is invalid']);
+					else
+						rpc.emit('call', client, 'privmsg', [target, prefix + 'The Yo to ' + targetUser.toUpperCase() + ' is invalid (Wait a minute and try again)']);
+				});
 			}
 		}
 	}

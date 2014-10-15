@@ -541,7 +541,7 @@ function createNetwork(name, address, password, callback) {
 				'management': {
 					'admins': []
 				}
-			}
+			};
 
 			// Set colon index
 			var colonIndex = address.indexOf(':');
@@ -1097,4 +1097,4 @@ function exitReady(force) {
 
 global.isChannel = function isChannel(target) {
 	return (target.indexOf('#') === 0);
-}
+};

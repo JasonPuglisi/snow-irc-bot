@@ -1,6 +1,6 @@
 {
 	"name": "snow-irc-bot",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A modular multi-network JavaScript IRC bot.",
 	"keywords": ["snow", "irc", "bot"],
 	"homepage": "https://github.com/JasonPuglisi/snow-irc-bot",

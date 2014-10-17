@@ -1095,6 +1095,7 @@ function exitReady(force) {
 	}
 }
 
-global.isChannel = function isChannel(target) {
+// Determine if input is a channel
+global.isChannel = function isChannel(input) {
 	return (target.indexOf('#') === 0);
 };

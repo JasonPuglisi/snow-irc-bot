@@ -24,11 +24,15 @@ module.exports = {
 			var toName = text.toLowerCase().indexOf(name.toLowerCase() + ' ') === 0 || text.toLowerCase().indexOf(name.toLowerCase() + ', ') === 0;
 			var shouldAdd = nolog.indexOf(nickname.toLowerCase()) === -1 && log;
 
-			if (toName && respond)
-				rpc.emit('call', client, 'privmsg', [target, megahal.getReplyFromSentence(text.substring(name.length + 1))]);
+			if (toName && respond) {
+				var output = megahal.getReplyFromSentence(text.substring(name.length + 1));
+				rpc.emit('call', client, 'privmsg', [target, output]);
+			}
 
 			else
 				if (shouldAdd) {
+					var text = text.replace(/([^a-z0-9,.?! ]+)/gi, '');
+
 					var textEnd = text.charAt(text.length - 1);
 					var hasPunctuation = textEnd === '.' || textEnd === '!' || textEnd === '?';
 					if (!hasPunctuation) text += '.';

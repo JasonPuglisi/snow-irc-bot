@@ -99,6 +99,18 @@
       "function": "getTranslation"
     },
     {
+      "name": "Playing",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "playing",
+          "settings": {}
+        }
+      ],
+      "minArgs": 0,
+      "function": "getLastfmPlaying"
+    },
+    {
       "name": "Yo",
       "settings": {},
       "triggers": [

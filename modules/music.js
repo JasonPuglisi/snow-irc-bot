@@ -5,8 +5,10 @@ module.exports = {
 
 		if (lastfmKey !== undefined) {
 			if (args.length === 0) {
-				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined)
-					var input = profileData[client][nickname.toLowerCase()].lastfm;
+				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined) {
+					var profileLastfm = profileData[client][nickname.toLowerCase()].lastfm;
+					var input = profileLastfm;
+				}
 			}
 
 			else
@@ -20,19 +22,26 @@ module.exports = {
 					if (!error && response.statusCode === 200) {
 						var data = JSON.parse(body);
 
+						var userString = user;
 						if (data.recenttracks !== undefined) {
+							if (data.recenttracks['@attr'] && data.recenttracks['@attr'].user) {
+								if (profileLastfm === undefined)
+									userString = data.recenttracks['@attr'].user + ' is ';
+								else
+									userString = 'You\'re ';
+							}
+
 							if (data.recenttracks.track && data.recenttracks.track[0] && data.recenttracks.track[0]['@attr']) {
-								user = data.recenttracks['@attr'].user;
 
 								var track = data.recenttracks.track[0].name;
 								var artist = data.recenttracks.track[0].artist['#text'];
 								var url = data.recenttracks.track[0].url;
 
-								rpc.emit('call', client, 'privmsg', [target, prefix + user + ' is listening to \'' + track + '\' by ' + artist]);
+								rpc.emit('call', client, 'privmsg', [target, prefix + userString + 'listening to \'' + track + '\' by ' + artist]);
 							}
 
 							else
-								rpc.emit('call', client, 'privmsg', [target, prefix + user + ' is not listening to anything']);
+								rpc.emit('call', client, 'privmsg', [target, prefix + userString + 'not listening to anything']);
 						}
 
 

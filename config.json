@@ -99,16 +99,16 @@
       "function": "getTranslation"
     },
     {
-      "name": "Playing",
+      "name": "Listening",
       "settings": {},
       "triggers": [
         {
-          "name": "playing",
+          "name": "listening",
           "settings": {}
         }
       ],
       "minArgs": 0,
-      "function": "getLastfmPlaying"
+      "function": "getLastfmListening"
     },
     {
       "name": "Yo",

@@ -728,7 +728,7 @@ function runCommand(client, network, channel, command, trigger, nickname, target
 		target = nickname;
 	}
 
-	// Set admin required (trigger admin, command admin, channel admin, network admin, default admin)
+	// Set admin required (trigger admin, command admin, channel admin, network admin, default admin, false)
 	var admin = trigger.settings.admin;
 	if (admin === undefined) {
 		admin = command.settings.admin;
@@ -738,6 +738,9 @@ function runCommand(client, network, channel, command, trigger, nickname, target
 				admin = network.settings.admin;
 				if (admin === undefined) {
 					admin = config.settings.admin;
+					if (admin === undefined) {
+						admin = false;
+					}
 				}
 			}
 		}

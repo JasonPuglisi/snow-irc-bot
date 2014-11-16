@@ -3,7 +3,6 @@
     "fs": "fs",
     "iconv": "iconv-lite",
     "factory": "irc-factory",
-    "jsmegahal": "jsmegahal",
     "moment": "moment",
     "request": "request",
     "parseXml": "xml2js"
@@ -17,10 +16,7 @@
     "symbol": "!",
     "cases": true,
     "admin": false,
-    "prefix": "%NAME%: ",
-    "log": true,
-    "respond": true,
-    "functions": ["processResponse"]
+    "prefix": "%NAME%: "
   },
   "networks": [],
   "commands": [
@@ -121,18 +117,6 @@
       ],
       "minArgs": 1,
       "function": "sendYo"
-    },
-    {
-      "name": "Dubs",
-      "settings": {},
-      "triggers": [
-        {
-          "name": "dubs",
-          "settings": {}
-        }
-      ],
-      "minArgs": 0,
-      "function": "getDubs"
     },
     {
       "name": "EightBall",

@@ -395,7 +395,7 @@ function createClients(clients, targets, callback) {
 					var user = network.identity.user || config.identity.user || nick;
 
 					// Set realname (network realname, default realname, network nick, default nick)
-					var realname = network.identity.realname || config.identity.realname || nick;
+					var realname = network.identity.real || config.identity.real || nick;
 
 					// Set server (network server)
 					var server = network.connection.server;

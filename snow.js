@@ -46,11 +46,6 @@ var interfaces = api.connect(options);
 var events = interfaces.events;
 global.rpc = interfaces.rpc;
 
-// Set JSMegaHAL settings
-global.megahal = new jsmegahal(4);
-
-megahal.addMass(fs.readFileSync('brain.txt', 'utf8'));
-
 // Set global variables
 var waitingRegistered = [];
 var waitingChannels = [];
@@ -341,18 +336,6 @@ function processPrivmsg(client, target, nickname, message) {
 		if (args.length >= minArgs) {
 			// Run command
 			runCommand(client, network, channel, command, trigger, nickname, target, args);
-		}
-	} else {
-		// Set message functions (channel functions, network functions, default functions)
-		var functions = channel.settings.functions || network.settings.functions || config.settings.functions;
-
-		// For each message function
-		for (var i in functions) {
-			// Set function
-			var messageFunction = functions[i];
-
-			// Call message function
-			global[messageFunction](client, network, channel, nickname, target, message);
 		}
 	}
 }

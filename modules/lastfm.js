@@ -22,11 +22,12 @@ module.exports = {
 					if (!error && response.statusCode === 200) {
 						var data = JSON.parse(body);
 
-						var userString = user;
+						var userString;
 						if (data.recenttracks !== undefined) {
 							if (data.recenttracks['@attr'] && data.recenttracks['@attr'].user) {
 								if (profileLastfm === undefined)
 									userString = data.recenttracks['@attr'].user + ' is ';
+
 								else
 									userString = 'You\'re ';
 							}
@@ -43,7 +44,6 @@ module.exports = {
 							else
 								rpc.emit('call', client, 'privmsg', [target, prefix + userString + 'not listening to anything']);
 						}
-
 
 						else
 							rpc.emit('call', client, 'privmsg', [target, prefix + 'The user \'' + user + '\' does not exist']);

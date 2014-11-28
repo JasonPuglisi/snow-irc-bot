@@ -107,6 +107,18 @@
       "function": "getLastfmListening"
     },
     {
+      "name": "Gaming",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "gaming",
+          "settings": {}
+        }
+      ],
+      "minArgs": 0,
+      "function": "getSteamGaming"
+    },
+    {
       "name": "Yo",
       "settings": {},
       "triggers": [

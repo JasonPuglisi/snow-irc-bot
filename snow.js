@@ -1083,5 +1083,5 @@ function exitReady(force) {
 
 // Determine if input is a channel
 global.isChannel = function isChannel(input) {
-	return (input.indexOf('#') === 0);
+	return input.indexOf('#') === 0;
 };

@@ -1,13 +1,13 @@
 {
 	"name": "snow-irc-bot",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "A modular multi-network JavaScript IRC bot.",
 	"keywords": ["snow", "irc", "bot"],
 	"homepage": "https://github.com/JasonPuglisi/snow-irc-bot",
 	"bugs": "https://github.com/JasonPuglisi/snow-irc-bot/issues",
 	"license": "MIT",
 	"author": "Jason Puglisi <jason@puglisi.im> (https://www.puglisi.im/)",
-	"files": ["snow.js", "config.json", "my.json", "brain.txt", "README.md", "LICENSE.txt"],
+	"files": ["snow.js", "config.json", "save.json", "Readme.md", "License.txt"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/JasonPuglisi/snow-irc-bot.git"

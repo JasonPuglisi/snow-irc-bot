@@ -5,8 +5,8 @@ module.exports = {
 
 		if (steamKey !== undefined) {
 			if (args.length === 0) {
-				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined) {
-					var profileSteam = profileData[client][nickname.toLowerCase()].steam;
+				if (save.profiles[client] !== undefined && save.profiles[client][nickname.toLowerCase()] !== undefined) {
+					var profileSteam = save.profiles[client][nickname.toLowerCase()].steam;
 					var input = profileSteam;
 				}
 			}

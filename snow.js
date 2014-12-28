@@ -3,8 +3,8 @@
 global.configFile = 'config.json';
 global.config = require('./' + configFile);
 
-global.profileFile = 'profiles.json';
-global.profileData = require('./' + profileFile);
+global.saveFile = 'save.json';
+global.save = require('./' + saveFile);
 
 // Require dependencies
 for (var i in config.dependencies) {

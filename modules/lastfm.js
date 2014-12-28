@@ -5,8 +5,8 @@ module.exports = {
 
 		if (lastfmKey !== undefined) {
 			if (args.length === 0) {
-				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined) {
-					var profileLastfm = profileData[client][nickname.toLowerCase()].lastfm;
+				if (save.profiles[client] !== undefined && save.profiles[client][nickname.toLowerCase()] !== undefined) {
+					var profileLastfm = save.profiles[client][nickname.toLowerCase()].lastfm;
 					var input = profileLastfm;
 				}
 			}

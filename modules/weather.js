@@ -10,8 +10,8 @@ module.exports = {
 			var input;
 
 			if (args.length === 0) {
-				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined)
-					input = profileData[client][nickname.toLowerCase()].location;
+				if (save.profiles[client] !== undefined && save.profiles[client][nickname.toLowerCase()] !== undefined)
+					input = save.profiles[client][nickname.toLowerCase()].location;
 			}
 
 			else

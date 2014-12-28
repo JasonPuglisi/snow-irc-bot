@@ -1,14 +1,5 @@
 module.exports = {
-	readyCounts: function() {
-		if (!global.countData) {
-			global.countFile = 'counts.json';
-			global.countData = require('../' + countFile);
-		}
-	},
-
 	count: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
-		readyCounts();
-
 		var name = args[0].substring(0, 100);
 		var option = args[1];
 		var amount = args[2];
@@ -18,25 +9,25 @@ module.exports = {
 		else
 			amount = Math.round(amount);
 
-		if (countData[client] === undefined)
-			countData[client] = {};
-		if (countData[client][name.toLowerCase()] === undefined)
-			countData[client][name.toLowerCase()] = 0;
+		if (save.counts[client] === undefined)
+			save.counts[client] = {};
+		if (save.counts[client][name.toLowerCase()] === undefined)
+			save.counts[client][name.toLowerCase()] = 0;
 
 		if (option === '+')
-			countData[client][name.toLowerCase()] = Math.min(countData[client][name.toLowerCase()] + amount, 1000000);
+			save.counts[client][name.toLowerCase()] = Math.min(save.counts[client][name.toLowerCase()] + amount, 1000000);
 
 		else if (option === '-')
-			countData[client][name.toLowerCase()] = Math.max(countData[client][name.toLowerCase()] - amount, 0);
+			save.counts[client][name.toLowerCase()] = Math.max(save.counts[client][name.toLowerCase()] - amount, 0);
 
 		else if (option === '=')
-			countData[client][name.toLowerCase()] = amount;
+			save.counts[client][name.toLowerCase()] = amount;
 
 		else
 			option = '=';
 
-		rpc.emit('call', client, 'privmsg', [target, prefix + '[' + option + '] ' + name + ' count: ' + countData[client][name.toLowerCase()]]);
+		rpc.emit('call', client, 'privmsg', [target, prefix + '[' + option + '] ' + name + ' count: ' + save.counts[client][name.toLowerCase()]]);
 
-		fs.writeFileSync(countFile, JSON.stringify(countData));
+		fs.writeFileSync(saveFile, JSON.stringify(save));
 	}
 };

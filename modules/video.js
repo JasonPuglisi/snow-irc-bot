@@ -5,8 +5,8 @@ module.exports = {
 
 		if (googleKey !== undefined) {
 			if (args.length === 0) {
-				if (profileData[client] !== undefined && profileData[client][nickname.toLowerCase()] !== undefined)
-					var input = profileData[client][nickname.toLowerCase()].video;
+				if (save.profiles[client] !== undefined && save.profiles[client][nickname.toLowerCase()] !== undefined)
+					var input = save.profiles[client][nickname.toLowerCase()].video;
 			}
 
 			else

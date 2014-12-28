@@ -32,7 +32,10 @@ module.exports = {
 		else if (option === '=')
 			countData[client][name.toLowerCase()] = amount;
 
-		rpc.emit('call', client, 'privmsg', [target, prefix + name + ' count: ' + countData[client][name.toLowerCase()]]);
+		else
+			option = '=';
+
+		rpc.emit('call', client, 'privmsg', [target, prefix + '[' + option + '] ' + name + ' count: ' + countData[client][name.toLowerCase()]]);
 
 		fs.writeFileSync(countFile, JSON.stringify(countData));
 	}

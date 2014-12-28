@@ -59,6 +59,18 @@
       "function": "viewProfile"
     },
     {
+      "name": "Count",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "count",
+          "settings": {}
+        }
+      ],
+      "minArgs": 1,
+      "function": "count"
+    },
+    {
       "name": "Weather",
       "settings": {},
       "triggers": [

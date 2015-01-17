@@ -10,7 +10,7 @@ module.exports = {
 			'Very doubtful'
 		];
 
-		var random = Math.round(Math.random() * answers.length - 1);
+		var random = Math.floor(Math.random() * answers.length);
 
 		rpc.emit('call', client, 'privmsg', [target, prefix + answers[random]]);
 	}

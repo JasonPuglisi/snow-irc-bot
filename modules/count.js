@@ -4,7 +4,7 @@ module.exports = {
 		var option = args[1];
 		var amount = args[2];
 
-		if (!amount || isNaN(amount) || amount < 1 || amount > 100000)
+		if (!amount || isNaN(amount) || amount < 0 || amount > 100000)
 			amount = 1;
 		else
 			amount = Math.round(amount);

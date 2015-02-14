@@ -131,6 +131,15 @@ module.exports = {
 				}
 				break;
 			case 'default':
+				for (var i in save.announcements[client][chan])
+					if (save.announcements[client][chan][i].default)
+						save.announcements[client][chan][i].default = false;
+
+				save.announcements[client][chan][set].default = true;
+
+				rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' is now default']);
+
+				fs.writeFileSync(saveFile, JSON.stringify(save));
 				break;
 			case 'update':
 				break;

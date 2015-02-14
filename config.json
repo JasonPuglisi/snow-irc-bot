@@ -71,6 +71,18 @@
       "function": "count"
     },
     {
+      "name": "Announce",
+      "settings": {},
+      "triggers": [
+        {
+          "name": "announce",
+          "settings": {}
+        }
+      ],
+      "minArgs": 2,
+      "function": "announce"
+    },
+    {
       "name": "Weather",
       "settings": {},
       "triggers": [

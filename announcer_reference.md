@@ -25,7 +25,7 @@ Creates a set \<set_name\> in channel [channel].
 
 ```!announce [channel] set <set_name> remove```
 
-Destroys the set \<set_name\> in channel [channel].
+Destroys the set \<set_name\> in channel [channel] and its aliases.
 
 ```!announce [channel] set <set_name> alias <aliased_set_name>```
 

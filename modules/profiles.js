@@ -4,6 +4,8 @@ module.exports = {
 		var value = args.slice(1).join(' ');
 
 		if (option.length <= 25 && option !== ' ') {
+			if (save.profiles === undefined)
+				save.profiles = {};
 			if (save.profiles[client] === undefined)
 				save.profiles[client] = {};
 			if (save.profiles[client][nickname.toLowerCase()] === undefined)

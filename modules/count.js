@@ -9,6 +9,8 @@ module.exports = {
 		else
 			amount = Math.round(amount);
 
+		if (save.counts === undefined)
+			save.counts = {};
 		if (save.counts[client] === undefined)
 			save.counts[client] = {};
 		if (save.counts[client][name.toLowerCase()] === undefined)

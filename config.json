@@ -72,7 +72,9 @@
     },
     {
       "name": "Announce",
-      "settings": {},
+      "settings": {
+        "admin": true
+      },
       "triggers": [
         {
           "name": "announce",

@@ -131,15 +131,19 @@ module.exports = {
 				}
 				break;
 			case 'default':
-				for (var i in save.announcements[client][chan])
-					if (save.announcements[client][chan][i].default)
-						save.announcements[client][chan][i].default = false;
+				if (save.announcements[client][chan][set] !== undefined) {
+					for (var i in save.announcements[client][chan])
+						if (save.announcements[client][chan][i].default)
+							save.announcements[client][chan][i].default = false;
 
-				save.announcements[client][chan][set].default = true;
+					save.announcements[client][chan][set].default = true;
 
-				rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' is now default']);
+					rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' is now default']);
 
-				fs.writeFileSync(saveFile, JSON.stringify(save));
+					fs.writeFileSync(saveFile, JSON.stringify(save));
+				}
+				else
+					rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' does not exist']);
 				break;
 			case 'update':
 				break;

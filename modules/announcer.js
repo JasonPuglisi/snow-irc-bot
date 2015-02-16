@@ -4,7 +4,9 @@ module.exports = {
 		var cmd = args[1];
 		var args = args.slice(2);
 
-		if (chan.indexOf('#') === 0)
+		if (chan.indexOf('#') === 0) {
+			announceInit(chan, client);
+		
 			switch(cmd) {
 				case 'on':
 					break;
@@ -37,6 +39,7 @@ module.exports = {
 					announceInvalid(cmd, client, target, prefix);
 					break;
 			}
+		}
 		else
 			rpc.emit('call', client, 'privmsg', [target, prefix + 'Input ' + chan + ' is not a channel']);
 
@@ -48,8 +51,6 @@ module.exports = {
 
 	},
 	announceSet: function(chan, set, cmd, args, client, target, prefix) {
-		announceInit(chan, client);
-
 		switch(cmd) {
 			case 'add':
 				if (save.announcements[client][chan][set] === undefined) {
@@ -322,64 +323,148 @@ module.exports = {
 		}
 	},
 	announceMsg: function(chan, set, cmd, args, client, target, prefix) {
-		announceInit(chan, client);
-
 		if (save.announcements[client][chan][set] !== undefined) {
-			switch(cmd) {
-				case 'add':
-					var msg = args.join(' ');
-					save.announcements[client][chan][set].msg.push({'text':msg,'alias':false});
+			if (save.announcements[client][chan][set].alias === false) {
+				switch(cmd) {
+					case 'add':
+						var msg = args.join(' ');
 
-					rpc.emit('call', client, 'privmsg', [target, prefix + 'Added message to spot ' + save.announcements[client][chan][set].msg.length]);
+						save.announcements[client][chan][set].msg.push({'text':msg,'alias':false});
 
-					fs.writeFileSync(saveFile, JSON.stringify(save));
-					break;
-				case 'remove':
-					var spot = args[0];
-					if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
-						save.announcements[client][chan][set].msg.splice(spot - 1, 1);
-						for (var i in save.announcements[client][chan][set].msg)
-							if (save.announcements[client][chan][set].msg[i].alias === spot)
-								save.announcements[client][chan][set].msg.splice(i, 1);
-
-						rpc.emit('call', client, 'privmsg', [target, prefix + 'Removed message from spot ' + spot]);
+						rpc.emit('call', client, 'privmsg', [target, prefix + 'Added message to spot ' + save.announcements[client][chan][set].msg.length]);
 
 						fs.writeFileSync(saveFile, JSON.stringify(save));
-					}
-					else
-						rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
-					break;
-				case 'alias':
-					var spot = args[0];
-					if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
-						save.announcements[client][chan][set].msg.push({'alias':spot})
+						break;
+					case 'remove':
+						var spot = args[0];
+						if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+							save.announcements[client][chan][set].msg.splice(spot - 1, 1);
+							for (var i in save.announcements[client][chan][set].msg)
+								if (save.announcements[client][chan][set].msg[i].alias === spot)
+									save.announcements[client][chan][set].msg.splice(i, 1);
 
-						rpc.emit('call', client, 'privmsg', [target, prefix + 'Aliased spot ' + save.announcements[client][chan][set].msg.length + ' to spot ' + spot]);
-					}
-					else
-						rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
-					break;
-				case 'edit':
-					break;
-				case 'move':
-					break;
-				case 'swap':
-					break;
-				case 'first':
-					break;
-				case 'last':
-					break;
-				default:
-					announceInvalid(cmd, client, target, prefix);
-					break;
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Removed message from spot ' + spot]);
+
+							fs.writeFileSync(saveFile, JSON.stringify(save));
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						break;
+					case 'alias':
+						var spot = args[0];
+						if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+							if (save.announcements[client][chan][set].msg[spot - 1].alias === false) {
+								save.announcements[client][chan][set].msg.push({'alias':spot});
+
+								rpc.emit('call', client, 'privmsg', [target, prefix + 'Aliased spot ' + save.announcements[client][chan][set].msg.length + ' to spot ' + spot]);
+
+								fs.writeFileSync(saveFile, JSON.stringify(save));
+							}
+							else
+								rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' is an alias']);
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						break;
+					case 'edit':
+						if (args.length > 1) {
+							var spot = args[0];
+							var msg = args.slice(1).join(' ');
+
+							if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+								if (save.announcements[client][chan][set].msg[spot - 1].alias === false) {
+									save.announcements[client][chan][set].msg[spot - 1].text = msg;
+
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Edited message in spot ' + spot]);
+
+									fs.writeFileSync(saveFile, JSON.stringify(save));
+								}
+								else
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' is an alias']);
+							}
+							else
+								rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						}
+						break;
+					case 'move':
+						if (args.length > 1) {
+							var spot = args[0];
+							var dest = args[1];
+
+							if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+								if (dest > 0 && dest <= save.announcements[client][chan][set].msg.length) {
+									save.announcements[client][chan][set].msg.splice(dest - 1, 0, save.announcements[client][chan][set].msg.splice(spot - 1, 1)[0]);
+
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Moved message in spot ' + spot + ' to spot ' + dest]);
+
+									fs.writeFileSync(saveFile, JSON.stringify(save));
+								}
+								else
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + dest + ' does not exist']);
+							}
+							else
+								rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						}
+						break;
+					case 'swap':
+						if (args.length > 1) {
+							var spot = args[0];
+							var dest = args[1];
+
+							if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+								if (dest > 0 && dest <= save.announcements[client][chan][set].msg.length) {
+									save.announcements[client][chan][set].msg[dest - 1] = save.announcements[client][chan][set].msg.splice(spot - 1, 1, save.announcements[client][chan][set].msg[dest - 1])[0];
+
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Swapped messages in spots ' + spot + ' and ' + dest]);
+
+									fs.writeFileSync(saveFile, JSON.stringify(save));
+								}
+								else
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + dest + ' does not exist']);
+							}
+							else
+								rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						}
+						break;
+					case 'first':
+						var spot = args[0];
+
+						if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+							save.announcements[client][chan][set].msg.splice(0, 0, save.announcements[client][chan][set].msg.splice(spot - 1, 1)[0]);
+
+
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Moved message in spot ' + spot + ' to first']);
+
+							fs.writeFileSync(saveFile, JSON.stringify(save));
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						break;
+					case 'last':
+						var spot = args[0];
+
+						if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
+							save.announcements[client][chan][set].msg.push(save.announcements[client][chan][set].msg.splice(spot - 1, 1)[0]);
+
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Moved message in spot ' + spot + ' to last']);
+
+							fs.writeFileSync(saveFile, JSON.stringify(save));
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Spot ' + spot + ' does not exist']);
+						break;
+					default:
+						announceInvalid(cmd, client, target, prefix);
+						break;
+				}
 			}
-			console.log(save.announcements[client][chan][set].msg); // DEBUG
+			else
+				rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' is an alias']);
 		}
 		else
 			rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);
 	},
 	announceList: function(chan, cmd, args, client, target, prefix) {
-		console.log(save.announcements[client][chan]); // DEBUG
 	},
 	announceInvalid: function(cmd, client, target, prefix) {
 		rpc.emit('call', client, 'privmsg', [target, prefix + 'Command ' + cmd + ' does not exist (Commands: https://github.com/JasonPuglisi/snow-irc-bot/blob/master/announcer_reference.md)']);

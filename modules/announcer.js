@@ -327,7 +327,7 @@ module.exports = {
 		if (save.announcements[client][chan][set] !== undefined) {
 			switch(cmd) {
 				case 'add':
-					var msg = args[0];
+					var msg = args.join(' ');
 					save.announcements[client][chan][set].msg.push({'text':msg,'alias':false});
 
 					rpc.emit('call', client, 'privmsg', [target, prefix + 'Added message to spot ' + save.announcements[client][chan][set].msg.length]);

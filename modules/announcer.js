@@ -465,6 +465,41 @@ module.exports = {
 			rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);
 	},
 	announceList: function(chan, cmd, args, client, target, prefix) {
+		switch(cmd) {
+			case 'set':
+				var sets = [];
+
+				for (var i in save.announcements[client][chan]) {
+					var set = i;
+					if (save.announcements[client][chan][i].default)
+						set += ' [Default]';
+					if (save.announcements[client][chan][i].alias !== false)
+						set += ' [Alias: ' + save.announcements[client][chan][i].alias + ']';
+					if (save.announcements[client][chan][i].interval !== false)
+						set += ' [Interval: ' + save.announcements[client][chan][i].interval + ']';
+					if (save.announcements[client][chan][i].date.start !== false)
+						set += ' [Start date: ' + save.announcements[client][chan][i].date.start + ']';
+					if (save.announcements[client][chan][i].date.end !== false)
+						set += ' [End date: ' + save.announcements[client][chan][i].date.end + ']';
+					if (save.announcements[client][chan][i].time.start !== false)
+						set += ' [Start time: ' + save.announcements[client][chan][i].time.start + ']';
+					if (save.announcements[client][chan][i].time.end !== false)
+						set += ' [End time: ' + save.announcements[client][chan][i].time.end + ']';
+
+					sets.push(set);
+				}
+
+				if (sets.length > 0)
+					rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ': ' + sets.sort().join(', ')]);
+				else
+					rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ' do not exist']);
+				break;
+			case 'msg':
+				break;
+			default:
+				announceInvalid(cmd, client, target, prefix);
+				break;
+		}
 	},
 	announceInvalid: function(cmd, client, target, prefix) {
 		rpc.emit('call', client, 'privmsg', [target, prefix + 'Command ' + cmd + ' does not exist (Commands: https://github.com/JasonPuglisi/snow-irc-bot/blob/master/announcer_reference.md)']);

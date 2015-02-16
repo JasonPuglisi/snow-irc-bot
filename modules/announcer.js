@@ -146,6 +146,143 @@ module.exports = {
 					rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' does not exist']);
 				break;
 			case 'update':
+				if (args.length > 0) {
+					if (save.announcements[client][chan][set] !== undefined) {
+						var cmd = args[0];
+						var args = args.slice(1);
+
+						switch(cmd) {
+							case 'interval':
+								if (args.length > 0) {
+									var time = args[0];
+									if (!isNaN(time) && time > 0 && time < 3601) {
+										save.announcements[client][chan][set].interval = time;
+
+										rpc.emit('call', client, 'privmsg', [target, prefix + 'The interval of set \'' + set + '\' has been set to ' + time]);
+
+										fs.writeFileSync(saveFile, JSON.stringify(save));
+									}
+									else
+										rpc.emit('call', client, 'privmsg', [target, prefix + 'The interval \'' + time + '\' must be in the range 1-3600']);
+								}
+								else {
+									save.announcements[client][chan][set].interval = false;
+
+									rpc.emit('call', client, 'privmsg', [target, prefix + 'The interval of set \'' + set + '\' has been set to default']);
+
+									fs.writeFileSync(saveFile, JSON.stringify(save));
+								}
+								break;
+							case 'date':
+								if (args.length > 0) {
+									var cmd = args[0];
+									var args = args.slice(1);
+
+									if (args.length > 0) {
+										var date = args[0];
+
+										switch(cmd) {
+											case 'start':
+												if (isValidDate(date)) {
+													save.announcements[client][chan][set].date.start = date;
+
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The start date of set \'' + set + '\' has been set to ' + date]);
+												}
+												else
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The date \'' + date + '\' must be in the format YYYY-MM-DD']);
+												break;
+											case 'end':
+												if (isValidDate(date)) {
+													save.announcements[client][chan][set].date.end = date;
+
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The end date of set \'' + set + '\' has been set to ' + date]);
+												}
+												else
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The date \'' + date + '\' must be in the format YYYY-MM-DD']);
+												break;
+											default:
+												announceInvalid(cmd, client, target, prefix);
+												break;
+										}
+									}
+									else {
+										switch(cmd) {
+											case 'start':
+												save.announcements[client][chan][set].date.start = false;
+
+												rpc.emit('call', client, 'privmsg', [target, prefix + 'The start date of set \'' + set + '\' has been set to default']);
+												break;
+											case 'end':
+												save.announcements[client][chan][set].date.start = false;
+
+												rpc.emit('call', client, 'privmsg', [target, prefix + 'The end date of set \'' + set + '\' has been set to default']);
+												break;
+											default:
+												announceInvalid(cmd, client, target, prefix);
+												break;
+										}
+									}
+								}
+								break;
+							case 'time':
+								if (args.length > 0) {
+									var cmd = args[0];
+									var args = args.slice(1);
+
+									if (args.length > 0) {
+										var time = args[0];
+
+										switch(cmd) {
+											case 'start':
+												if (isValidTime(time)) {
+													save.announcements[client][chan][set].time.start = time;
+
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The start time of set \'' + set + '\' has been set to ' + time]);
+												}
+												else
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The time \'' + time + '\' must be in the format HH:MM']);
+												break;
+											case 'end':
+												if (isValidTime(time)) {
+													save.announcements[client][chan][set].time.end = time;
+
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The end time of set \'' + set + '\' has been set to ' + time]);
+												}
+												else
+													rpc.emit('call', client, 'privmsg', [target, prefix + 'The time \'' + time + '\' must be in the format HH:MM']);
+												break;
+											default:
+												announceInvalid(cmd, client, target, prefix);
+												break;
+										}
+									}
+									else {
+										switch(cmd) {
+											case 'start':
+												save.announcements[client][chan][set].time.start = false;
+
+												rpc.emit('call', client, 'privmsg', [target, prefix + 'The start time of set \'' + set + '\' has been set to default']);
+												break;
+											case 'end':
+												save.announcements[client][chan][set].time.start = false;
+
+												rpc.emit('call', client, 'privmsg', [target, prefix + 'The end time of set \'' + set + '\' has been set to default']);
+												break;
+											default:
+												announceInvalid(cmd, client, target, prefix);
+												break;
+										}
+									}
+								}
+								break;
+							default:
+								announceInvalid(cmd, client, target, prefix);
+								break;
+						}
+					}
+					else
+						rpc.emit('call', client, 'privmsg', [target, prefix + 'The set \'' + set + '\' does not exist']);
+				}
 				break;
 			default:
 				announceInvalid(cmd, client, target, prefix);
@@ -168,5 +305,11 @@ module.exports = {
 			save.announcements[client] = {};
 		if (save.announcements[client][chan] === undefined)
 			save.announcements[client][chan] = {};
+	},
+	isValidDate: function(date) {
+		return date.length === 10 && date.charAt(4) === '-' && date.charAt(7) === '-' && moment(date, 'YYYY-MM-DD').isValid();
+	},
+	isValidTime: function(time) {
+		return time.length === 5 && time.charAt(2) === ':' && moment(time, 'HH:mm').isValid();
 	}
 };

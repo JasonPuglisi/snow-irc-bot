@@ -506,9 +506,9 @@ module.exports = {
 
 						for (var i in save.announcements[client][chan][set].msg) {
 							if (save.announcements[client][chan][set].msg[i].alias === false)
-								msgs.push('[' + i + '] ' + save.announcements[client][chan][set].msg[i].text);
+								msgs.push('[' + (parseInt(i, 10) + 1) + '] ' + save.announcements[client][chan][set].msg[i].text);
 							else
-								msgs.push('[' + i + ' - Alias: ' + save.announcements[client][chan][set].msg[i].alias + ']');
+								msgs.push('[' + (parseInt(i, 10) + 1) + ' - Alias: ' + save.announcements[client][chan][set].msg[i].alias + ']');
 						}
 
 						if (msgs.length > 0) {	

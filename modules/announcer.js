@@ -489,12 +489,39 @@ module.exports = {
 					sets.push(set);
 				}
 
-				if (sets.length > 0)
-					rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ': ' + sets.sort().join(', ')]);
+				if (sets.length > 0) {
+					sets = sets.sort();
+					rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ':']);
+					for (var i in sets)
+						rpc.emit('call', client, 'privmsg', [target, prefix + '- ' + sets[i]]);
+				}
 				else
 					rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ' do not exist']);
 				break;
 			case 'msg':
+				if (args.length > 0) {
+					var set = args[0];
+					if (save.announcements[client][chan][set] !== undefined) {
+						var msgs = [];
+
+						for (var i in save.announcements[client][chan][set].msg) {
+							if (save.announcements[client][chan][set].msg[i].alias === false)
+								msgs.push('[' + i + '] ' + save.announcements[client][chan][set].msg[i].text);
+							else
+								msgs.push('[' + i + ' - Alias: ' + save.announcements[client][chan][set].msg[i].alias + ']');
+						}
+
+						if (msgs.length > 0) {	
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in channel ' + chan + ':']);
+							for (var i in msgs)
+								rpc.emit('call', client, 'privmsg', [target, prefix + '- ' + msgs[i]]);
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in channel ' + chan + ' do not exist']);
+					}
+					else
+						rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);
+				}
 				break;
 			default:
 				announceInvalid(cmd, client, target, prefix);

@@ -15,8 +15,11 @@ module.exports = {
 	
 		switch(cmd) {
 			case 'on':
+				var set = args[0];
+				announceOn(chan, set, client, target, prefix);
 				break;
 			case 'off':
+				announceOff(chan, client, target, prefix);
 				break;
 			case 'set':
 				if (args.length > 1) {
@@ -47,11 +50,26 @@ module.exports = {
 		}
 
 	},
-	announceOn: function() {
+	announceOn: function(chan, set, client, target, prefix) {
+		if (!global.announce[client][chan].on) {
+			global.announce[client][chan].on = true;
 
+			rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned on announcer in channel ' + chan]);
+		}
+		else {
+			announceOff(chan, client, target, prefix);
+
+			announceOn(chan, set, client, target, prefix);
+		}
 	},
-	announceOff: function() {
+	announceOff: function(chan, client, target, prefix) {
+		if (global.announce[client][chan].on) {
+			global.announce[client][chan].on = false;
 
+			rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned off announcer in channel ' + chan]);
+		}
+		else
+			rpc.emit('call', client, 'privmsg', [target, prefix + 'Announcer is already off in channel ' + chan]);
 	},
 	announceSet: function(chan, set, cmd, args, client, target, prefix) {
 		switch(cmd) {
@@ -541,6 +559,13 @@ module.exports = {
 			save.announcements[client] = {};
 		if (save.announcements[client][chan] === undefined)
 			save.announcements[client][chan] = {};
+
+		if (global.announce === undefined)
+			global.announce = {};
+		if (global.announce[client] === undefined)
+			global.announce[client] = {};
+		if (global.announce[client][chan] === undefined)
+			global.announce[client][chan] = {};
 	},
 	isValidDate: function(date) {
 		return date.length === 10 && date.charAt(4) === '-' && date.charAt(7) === '-' && moment(date, 'YYYY-MM-DD').isValid();

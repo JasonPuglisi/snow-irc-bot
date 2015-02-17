@@ -515,12 +515,12 @@ module.exports = {
 						}
 
 						if (msgs.length > 0) {	
-							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in channel ' + chan + ':']);
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in set ' + set + ':']);
 							for (var i in msgs)
 								rpc.emit('call', client, 'privmsg', [target, prefix + '- ' + msgs[i]]);
 						}
 						else
-							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in channel ' + chan + ' do not exist']);
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Messages in set ' + set + ' do not exist']);
 					}
 					else
 						rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);

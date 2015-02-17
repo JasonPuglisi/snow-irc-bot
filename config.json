@@ -81,7 +81,7 @@
           "settings": {}
         }
       ],
-      "minArgs": 2,
+      "minArgs": 1,
       "function": "announce"
     },
     {

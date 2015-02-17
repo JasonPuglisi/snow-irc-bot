@@ -56,6 +56,7 @@ module.exports = {
 					if (set !== undefined) {
 						if (set === false || save.announcements[client][chan][set] !== undefined) {
 							announcer[client][chan].on = true;
+							announcer[client][chan].lastSet = false;
 
 							if (set === false) {
 								announcer[client][chan].auto = true;
@@ -66,9 +67,9 @@ module.exports = {
 								announcer[client][chan].set = set;
 							}
 
-							announceOn('loop', chan, set, client, target, prefix);
-
 							rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned on announcer in channel ' + chan]);
+
+							announceOn('loop', chan, set, client, target, prefix);
 						}
 						else
 							rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);
@@ -91,22 +92,73 @@ module.exports = {
 				}
 				break;
 			case 'loop':
-				if (announcer[client][chan].auto) {
-					var sets = Object.keys(save.announcements[client][chan]);
-					set = sets.sort();
+				if (announcer[client][chan].on) {
+					if (announcer[client][chan].auto) {
+						var sets = Object.keys(save.announcements[client][chan]);
+						sets = sets.sort();
 
-					var found = false;
-					var msg;
+						var found = false;
 
-					for (var i in sets) {
-						if (!found) {
-							var date = moment().startOf('day');
-							var time = moment().year(2015).month(0).date(1).second(0).millisecond(0);
+						for (var i in sets) {
+							if (!found) {
+								var date = moment().startOf('day');
+								var time = moment().year(2015).month(0).date(1).second(0).millisecond(0);
 
-							var sDate = save.announcements[client][chan][sets[i]].date.start || '2015-01-01';
-							var eDate = save.announcements[client][chan][sets[i]].date.end || '2115-01-01';
-							var sTime = save.announcements[client][chan][sets[i]].time.start || '00:00';
-							var eTime = save.announcements[client][chan][sets[i]].time.end || '23:59';
+								var sDate = save.announcements[client][chan][sets[i]].date.start || '2015-01-01';
+								var eDate = save.announcements[client][chan][sets[i]].date.end || '2115-01-01';
+								var sTime = save.announcements[client][chan][sets[i]].time.start || '00:00';
+								var eTime = save.announcements[client][chan][sets[i]].time.end || '23:59';
+
+								sDate = moment(sDate + ' 00:00', 'YYYY-MM-DD HH:mm');
+								eDate = moment(eDate + ' 00:00', 'YYYY-MM-DD HH:mm');
+								sTime = moment('2015-01-01 ' + sTime, 'YYYY-MM-DD HH:mm');
+								eTime = moment('2015-01-01 ' + eTime, 'YYYY-MM-DD HH:mm');
+
+								if (isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime)) {
+									found = true;
+									announcer[client][chan].lastSet = announcer[client][chan].set;
+									announcer[client][chan].set = sets[i];
+								}
+							}
+						}
+					}
+
+					var renewed = false;
+
+					if (announcer[client][chan].set !== false) {
+						if (announcer[client][chan].lastSet !== announcer[client][chan].set)
+							announcer[client][chan].spot = 0;
+						else
+							announcer[client][chan].spot++;
+
+						var set = save.announcements[client][chan][announcer[client][chan].set];
+						var aliasSet = set;
+
+						if (set.alias !== false)
+							set = save.announcements[client][chan][set.alias];
+
+						if (set.msg.length > 0) {
+							announcer[client][chan].spot = announcer[client][chan].spot % set.msg.length;
+
+							var msg = set.msg[announcer[client][chan].spot];
+
+							if (msg.alias !== false)
+								msg = set.msg[parseInt(msg.alias) - 1];
+
+							if (msg.alias === false) {
+								rpc.emit('call', client, 'privmsg', [chan, msg.text]);
+							}
+						}
+
+						if (announcer[client][chan].auto) {
+							var interval = aliasSet.interval || 300;
+							var date = moment().add(interval, 'seconds').startOf('day');
+							var time = moment().add(interval, 'seconds').year(2015).month(0).date(1).second(0).millisecond(0);
+
+							var sDate = aliasSet.date.start || '2015-01-01';
+							var eDate = aliasSet.date.end || '2115-01-01';
+							var sTime = aliasSet.time.start || '00:00';
+							var eTime = aliasSet.time.end || '23:59';
 
 							sDate = moment(sDate + ' 00:00', 'YYYY-MM-DD HH:mm');
 							eDate = moment(eDate + ' 00:00', 'YYYY-MM-DD HH:mm');
@@ -114,10 +166,26 @@ module.exports = {
 							eTime = moment('2015-01-01 ' + eTime, 'YYYY-MM-DD HH:mm');
 
 							if (isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime)) {
-								found = true;
+								renewed = true;
+								setTimeout(function() {
+									announceOn('loop', chan, false, client, target, prefix);
+								}, interval * 1000);
 							}
 						}
+						else {
+							var interval = set.interval || 300;
+
+							renewed = true;
+							setTimeout(function() {
+								announceOn('loop', chan, set, client, target, prefix);
+							}, interval * 1000);
+						}
 					}
+
+					if (!renewed) 
+						setTimeout(function() {
+							announceOn('loop', chan, set, client, target, prefix);
+						}, 3000);
 				}
 				break;
 		}
@@ -159,7 +227,7 @@ module.exports = {
 
 					rpc.emit('call', client, 'privmsg', [target, prefix + 'Removed set ' + set]);
 
-					if (Object.keys(save.announcements[client][chan]).length === 0)
+					if (announcer[client][chan].on && Object.keys(save.announcements[client][chan]).length === 0)
 						announceOff(chan, client, target, prefix);
 
 					fs.writeFileSync(saveFile, JSON.stringify(save));
@@ -320,7 +388,7 @@ module.exports = {
 												fs.writeFileSync(saveFile, JSON.stringify(save));
 												break;
 											case 'end':
-												save.announcements[client][chan][set].date.start = false;
+												save.announcements[client][chan][set].date.end = false;
 
 												rpc.emit('call', client, 'privmsg', [target, prefix + 'End date of set ' + set + ' reverted to default']);
 
@@ -379,7 +447,7 @@ module.exports = {
 												fs.writeFileSync(saveFile, JSON.stringify(save));
 												break;
 											case 'end':
-												save.announcements[client][chan][set].time.start = false;
+												save.announcements[client][chan][set].time.end = false;
 
 												rpc.emit('call', client, 'privmsg', [target, prefix + 'End time of set ' + set + ' reverted to default']);
 

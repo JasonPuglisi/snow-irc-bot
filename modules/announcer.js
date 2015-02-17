@@ -12,11 +12,11 @@ module.exports = {
 		}
 
 		announceInit(chan, client);
-	
+
 		switch(cmd) {
 			case 'on':
 				var set = args[0];
-				announceOn(chan, set, client, target, prefix);
+				announceOn('start', chan, set, client, target, prefix);
 				break;
 			case 'off':
 				announceOff(chan, client, target, prefix);
@@ -48,23 +48,83 @@ module.exports = {
 				announceInvalid(cmd, client, target, prefix);
 				break;
 		}
-
 	},
-	announceOn: function(chan, set, client, target, prefix) {
-		if (!global.announce[client][chan].on) {
-			global.announce[client][chan].on = true;
+	announceOn: function(status, chan, set, client, target, prefix) {
+		switch(status) {
+			case 'start':
+				if (!announcer[client][chan].on) {
+					if (set !== undefined) {
+						if (set === false || save.announcements[client][chan][set] !== undefined) {
+							announcer[client][chan].on = true;
 
-			rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned on announcer in channel ' + chan]);
-		}
-		else {
-			announceOff(chan, client, target, prefix);
+							if (set === false) {
+								announcer[client][chan].auto = true;
+								announcer[client][chan].set = false;
+							}
+							else {
+								announcer[client][chan].auto = false;
+								announcer[client][chan].set = set;
+							}
 
-			announceOn(chan, set, client, target, prefix);
+							announceOn('loop', chan, set, client, target, prefix);
+
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned on announcer in channel ' + chan]);
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Set ' + set + ' does not exist']);
+						
+					}
+					else {
+						if (Object.keys(save.announcements[client][chan]).length > 0) {
+							set = false;
+
+							announceOn('start', chan, set, client, target, prefix);
+						}
+						else
+							rpc.emit('call', client, 'privmsg', [target, prefix + 'Sets in channel ' + chan + ' do not exist']);
+					}
+				}
+				else {
+					announceOff(chan, client, target, prefix);
+
+					announceOn('start', chan, set, client, target, prefix);
+				}
+				break;
+			case 'loop':
+				if (announcer[client][chan].auto) {
+					var sets = Object.keys(save.announcements[client][chan]);
+					set = sets.sort();
+
+					var found = false;
+					var msg;
+
+					for (var i in sets) {
+						if (!found) {
+							var date = moment().startOf('day');
+							var time = moment().year(2015).month(0).date(1).second(0).millisecond(0);
+
+							var sDate = save.announcements[client][chan][sets[i]].date.start || '2015-01-01';
+							var eDate = save.announcements[client][chan][sets[i]].date.end || '2115-01-01';
+							var sTime = save.announcements[client][chan][sets[i]].time.start || '00:00';
+							var eTime = save.announcements[client][chan][sets[i]].time.end || '23:59';
+
+							sDate = moment(sDate + ' 00:00', 'YYYY-MM-DD HH:mm');
+							eDate = moment(eDate + ' 00:00', 'YYYY-MM-DD HH:mm');
+							sTime = moment('2015-01-01 ' + sTime, 'YYYY-MM-DD HH:mm');
+							eTime = moment('2015-01-01 ' + eTime, 'YYYY-MM-DD HH:mm');
+
+							if (isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime)) {
+								found = true;
+							}
+						}
+					}
+				}
+				break;
 		}
 	},
 	announceOff: function(chan, client, target, prefix) {
-		if (global.announce[client][chan].on) {
-			global.announce[client][chan].on = false;
+		if (announcer[client][chan].on) {
+			announcer[client][chan].on = false;
 
 			rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned off announcer in channel ' + chan]);
 		}
@@ -98,6 +158,9 @@ module.exports = {
 						save.announcements[client][chan][Object.keys(save.announcements[client][chan])[0]].default = true;
 
 					rpc.emit('call', client, 'privmsg', [target, prefix + 'Removed set ' + set]);
+
+					if (Object.keys(save.announcements[client][chan]).length === 0)
+						announceOff(chan, client, target, prefix);
 
 					fs.writeFileSync(saveFile, JSON.stringify(save));
 				}
@@ -560,17 +623,23 @@ module.exports = {
 		if (save.announcements[client][chan] === undefined)
 			save.announcements[client][chan] = {};
 
-		if (global.announce === undefined)
-			global.announce = {};
-		if (global.announce[client] === undefined)
-			global.announce[client] = {};
-		if (global.announce[client][chan] === undefined)
-			global.announce[client][chan] = {};
+		if (announcer === undefined)
+			global.announcer = {};
+		if (announcer[client] === undefined)
+			announcer[client] = {};
+		if (announcer[client][chan] === undefined)
+			announcer[client][chan] = {'date':{},'time':{}};
 	},
 	isValidDate: function(date) {
 		return date.length === 10 && date.charAt(4) === '-' && date.charAt(7) === '-' && moment(date, 'YYYY-MM-DD').isValid();
 	},
 	isValidTime: function(time) {
 		return time.length === 5 && time.charAt(2) === ':' && moment(time, 'HH:mm').isValid();
+	},
+	isInDateRange: function(date, start, end) {
+		return (date.isSame(start) || date.isAfter(start)) && (date.isSame(end) || date.isBefore(end));
+	},
+	isInTimeRange: function(time, start, end) {
+		return (time.isSame(start) || time.isAfter(start)) && (time.isSame(end) || time.isBefore(end));
 	}
 };

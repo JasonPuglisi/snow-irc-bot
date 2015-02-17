@@ -103,6 +103,6 @@ Moves message in spot \<spot\> in set \<set_name\> in channel [channel] to first
 
 Outputs the list of sets in channel [channel] in alphabetical order.
 
-```!announce [channel] list msg [set_name]```
+```!announce [channel] list msg <set_name>```
 
 Outputs the list of spots and messages in set [set_name] in channel [channel] in ascending spot order. If [set_name] not specified, outputs list for default set.

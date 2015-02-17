@@ -1,47 +1,50 @@
 module.exports = {
 	announce: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
-		var chan = args[0];
-		var cmd = args[1];
-		var args = args.slice(2);
-
-		if (chan.indexOf('#') === 0) {
-			announceInit(chan, client);
-		
-			switch(cmd) {
-				case 'on':
-					break;
-				case 'off':
-					break;
-				case 'set':
-					if (args.length > 1) {
-						var set = args[0];
-						var cmd = args[1];
-						var args = args.slice(2);
-						announceSet(chan, set, cmd, args, client, target, prefix);
-					}
-					break;
-				case 'msg':
-					if (args.length > 2) {
-						var set = args[0];
-						var cmd = args[1];
-						var args = args.slice(2);
-						announceMsg(chan, set, cmd, args, client, target, prefix);
-					}
-					break;
-				case 'list':
-					if (args.length > 0) {
-						var cmd = args[0];
-						var args = args.slice(1);
-						announceList(chan, cmd, args, client, target, prefix);
-					}
-					break;
-				default:
-					announceInvalid(cmd, client, target, prefix);
-					break;
-			}
+		if (args[0].indexOf('#') === 0) {
+			var chan = args[0];
+			var cmd = args[1];
+			var args = args.slice(2);
 		}
-		else
-			rpc.emit('call', client, 'privmsg', [target, prefix + 'Input ' + chan + ' is not a channel']);
+		else {
+			var chan = target;
+			var cmd = args[0];
+			var args = args.slice(1);
+		}
+
+		announceInit(chan, client);
+	
+		switch(cmd) {
+			case 'on':
+				break;
+			case 'off':
+				break;
+			case 'set':
+				if (args.length > 1) {
+					var set = args[0];
+					var cmd = args[1];
+					var args = args.slice(2);
+					announceSet(chan, set, cmd, args, client, target, prefix);
+				}
+				break;
+			case 'msg':
+				if (args.length > 2) {
+					var set = args[0];
+					var cmd = args[1];
+					var args = args.slice(2);
+					announceMsg(chan, set, cmd, args, client, target, prefix);
+				}
+				break;
+			case 'list':
+				if (args.length > 0) {
+					var cmd = args[0];
+					var args = args.slice(1);
+					announceList(chan, cmd, args, client, target, prefix);
+				}
+				break;
+			default:
+				announceInvalid(cmd, client, target, prefix);
+				break;
+		}
 
 	},
 	announceOn: function() {

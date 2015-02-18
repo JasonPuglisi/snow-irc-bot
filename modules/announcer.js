@@ -56,6 +56,7 @@ module.exports = {
 					if (set !== undefined) {
 						if (set === false || save.announcements[client][chan][set] !== undefined) {
 							announcer[client][chan].on = true;
+							announcer[client][chan].cont = true;
 							announcer[client][chan].lastSet = false;
 
 							if (set === false) {
@@ -93,6 +94,9 @@ module.exports = {
 				break;
 			case 'loop':
 				if (announcer[client][chan].on) {
+					var nowInRange;
+					var nextInRange;
+
 					if (announcer[client][chan].auto) {
 						var sets = Object.keys(save.announcements[client][chan]);
 						sets = sets.sort();
@@ -104,6 +108,10 @@ module.exports = {
 								var date = moment().startOf('day');
 								var time = moment().year(2015).month(0).date(1).second(0).millisecond(0);
 
+								var interval = save.announcements[client][chan][sets[i]].interval || 300;
+								var nextDate = moment().add(interval, 'seconds').startOf('day');
+								var nextTime = moment().add(interval, 'seconds').year(2015).month(0).date(1).second(0).millisecond(0);
+
 								var sDate = save.announcements[client][chan][sets[i]].date.start || '2015-01-01';
 								var eDate = save.announcements[client][chan][sets[i]].date.end || '2115-01-01';
 								var sTime = save.announcements[client][chan][sets[i]].time.start || '00:00';
@@ -114,11 +122,26 @@ module.exports = {
 								sTime = moment('2015-01-01 ' + sTime, 'YYYY-MM-DD HH:mm');
 								eTime = moment('2015-01-01 ' + eTime, 'YYYY-MM-DD HH:mm');
 
-								if (isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime)) {
+								nowInRange = isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime);
+								nextInRange = isInDateRange(nextDate, sDate, eDate) && isInTimeRange(nextTime, sTime, eTime);
+								if (nowInRange) {
 									found = true;
 									announcer[client][chan].lastSet = announcer[client][chan].set;
 									announcer[client][chan].set = sets[i];
+
+									if (announcer[client][chan].cont) {
+										if (!nextInRange)
+											announcer[client][chan].cont = false;
+									}
+									else {
+										announcer[client][chan].set = false;
+
+										if (nextInRange)
+											announcer[client][chan].cont = true;
+									}
 								}
+								else if (sets[i] === announcer[client][chan].set)
+									announcer[client][chan].set = false;
 							}
 						}
 					}
@@ -150,27 +173,11 @@ module.exports = {
 							}
 						}
 
-						if (announcer[client][chan].auto) {
-							var interval = aliasSet.interval || 300;
-							var date = moment().add(interval, 'seconds').startOf('day');
-							var time = moment().add(interval, 'seconds').year(2015).month(0).date(1).second(0).millisecond(0);
-
-							var sDate = aliasSet.date.start || '2015-01-01';
-							var eDate = aliasSet.date.end || '2115-01-01';
-							var sTime = aliasSet.time.start || '00:00';
-							var eTime = aliasSet.time.end || '23:59';
-
-							sDate = moment(sDate + ' 00:00', 'YYYY-MM-DD HH:mm');
-							eDate = moment(eDate + ' 00:00', 'YYYY-MM-DD HH:mm');
-							sTime = moment('2015-01-01 ' + sTime, 'YYYY-MM-DD HH:mm');
-							eTime = moment('2015-01-01 ' + eTime, 'YYYY-MM-DD HH:mm');
-
-							if (isInDateRange(date, sDate, eDate) && isInTimeRange(time, sTime, eTime)) {
-								renewed = true;
-								setTimeout(function() {
-									announceOn('loop', chan, false, client, target, prefix);
-								}, interval * 1000);
-							}
+						if (announcer[client][chan].auto && nextInRange) {
+							renewed = true;
+							setTimeout(function() {
+								announceOn('loop', chan, false, client, target, prefix);
+							}, interval * 1000);
 						}
 						else {
 							var interval = set.interval || 300;
@@ -185,7 +192,7 @@ module.exports = {
 					if (!renewed) 
 						setTimeout(function() {
 							announceOn('loop', chan, set, client, target, prefix);
-						}, 3000);
+						}, 1000);
 				}
 				break;
 		}
@@ -583,7 +590,6 @@ module.exports = {
 
 						if (spot > 0 && spot <= save.announcements[client][chan][set].msg.length) {
 							save.announcements[client][chan][set].msg.splice(0, 0, save.announcements[client][chan][set].msg.splice(spot - 1, 1)[0]);
-
 
 							rpc.emit('call', client, 'privmsg', [target, prefix + 'Moved message in spot ' + spot + ' to first']);
 

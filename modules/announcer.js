@@ -173,11 +173,13 @@ module.exports = {
 							}
 						}
 
-						if (announcer[client][chan].auto && nextInRange) {
-							renewed = true;
-							setTimeout(function() {
-								announceOn('loop', chan, false, client, target, prefix);
-							}, interval * 1000);
+						if (announcer[client][chan].auto) {
+							if (nextInRange) {
+								renewed = true;
+								setTimeout(function() {
+									announceOn('loop', chan, false, client, target, prefix);
+								}, interval * 1000);
+							}
 						}
 						else {
 							var interval = set.interval || 300;

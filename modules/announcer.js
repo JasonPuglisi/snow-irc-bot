@@ -56,16 +56,15 @@ module.exports = {
 					if (set !== undefined) {
 						if (set === false || save.announcements[client][chan][set] !== undefined) {
 							announcer[client][chan].on = true;
+							announcer[client][chan].auto = false;
+							announcer[client][chan].set = set;
+							announcer[client][chan].lastSet = set;
 							announcer[client][chan].cont = true;
-							announcer[client][chan].lastSet = false;
 
 							if (set === false) {
 								announcer[client][chan].auto = true;
 								announcer[client][chan].set = false;
-							}
-							else {
-								announcer[client][chan].auto = false;
-								announcer[client][chan].set = set;
+								announcer[client][chan].lastSet = false;
 							}
 
 							rpc.emit('call', client, 'privmsg', [target, prefix + 'Turned on announcer in channel ' + chan]);

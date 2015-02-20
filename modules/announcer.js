@@ -59,6 +59,7 @@ module.exports = {
 							announcer[client][chan].auto = false;
 							announcer[client][chan].set = set;
 							announcer[client][chan].lastSet = set;
+							announcer[client][chan].first = true;
 							announcer[client][chan].cont = true;
 
 							if (set === false)
@@ -145,8 +146,10 @@ module.exports = {
 					var renewed = false;
 
 					if (announcer[client][chan].set !== false) {
-						if (announcer[client][chan].lastSet !== announcer[client][chan].set)
+						if (announcer[client][chan].lastSet !== announcer[client][chan].set || announcer[client][chan].first) {
 							announcer[client][chan].spot = 0;
+							announcer[client][chan].first = false;
+						}
 						else
 							announcer[client][chan].spot++;
 

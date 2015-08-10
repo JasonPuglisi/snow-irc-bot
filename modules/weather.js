@@ -6,7 +6,6 @@ module.exports = {
 		}
 
 		if (googleKey !== undefined && forecastKey !== undefined) {
-
 			var input;
 
 			if (args.length === 0) {

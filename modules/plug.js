@@ -68,6 +68,8 @@ module.exports = {
 								if (save.plug.woot !== false)
 									plugBot.woot();
 							}
+							else
+								save.plug.advanceSuppressed = true;
 						});
 					}
 

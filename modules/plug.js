@@ -46,7 +46,7 @@ module.exports = {
 							save.plug.roomName = room;
 
 							if (!save.plug.joinAnnounced) {
-								rpc.emit('call', client, 'privmsg', [target, prefix + 'Plugged into [plug.dj/' + save.plug.room + '] \'' + save.plug.roomName + '\'']);
+								rpc.emit('call', client, 'privmsg', [target, prefix + '[plug.dj/' + save.plug.room + '] Plugged into \'' + save.plug.roomName + '\'']);
 
 								save.plug.joinAnnounced = true;
 							}
@@ -59,8 +59,12 @@ module.exports = {
 						plugBot.on('advance', function(data) {
 							if (data.media !== undefined) {
 								if (save.plug.advanceSuppressed) {
-									if (save.plug.announce !== false)
-										rpc.emit('call', client, 'privmsg', [target, '[plug.dj/' + save.plug.room + '] Now playing \'' + data.media.title + '\' by ' + data.media.author]);
+									if (save.plug.announce !== false) {
+										var song = plugBot.getMedia().title.replace('&amp;', '&');
+										var artist = plugBot.getMedia().author.replace('&amp;', '&');
+
+										rpc.emit('call', client, 'privmsg', [target, '[plug.dj/' + save.plug.room + '] Now playing \'' + song + '\' by ' + artist]);
+									}
 								}
 								else
 									save.plug.advanceSuppressed = true;
@@ -79,7 +83,7 @@ module.exports = {
 					if (global.plugBot !== undefined && save.plug.connected) {
 						plugBot.close();
 
-						rpc.emit('call', client, 'privmsg', [target, prefix + 'Unplugged from room']);
+						rpc.emit('call', client, 'privmsg', [target, prefix + '[plug.dj] Unplugged from room']);
 
 						save.plug.connected = false;
 
@@ -88,8 +92,12 @@ module.exports = {
 					break;
 				case 'announce':
 					if (args.length === 0) {
-						if (global.plugBot !== undefined && plugBot.getMedia())
-							rpc.emit('call', client, 'privmsg', [target, '[plug.dj/' + save.plug.room + '] Currently playing \'' + plugBot.getMedia().title + '\' by ' + plugBot.getMedia().author]);
+						if (global.plugBot !== undefined && plugBot.getMedia()) {
+							var song = plugBot.getMedia().title.replace('&amp;', '&');
+							var artist = plugBot.getMedia().author.replace('&amp;', '&');
+
+							rpc.emit('call', client, 'privmsg', [target, '[plug.dj/' + save.plug.room + '] Currently playing \'' + song + '\' by ' + artist]);
+						}
 						else
 							rpc.emit('call', client, 'privmsg', [target, '[plug.dj] Not currently playing anything']);
 					}

@@ -49,6 +49,8 @@ module.exports = {
 				var args = args.slice(1);
 
 				var argsLevel;
+				var argsProfile;
+				var argsParty;
 
 				switch (cmd) {
 					case 'level':
@@ -61,7 +63,23 @@ module.exports = {
 						argsProfile = args[0];
 						args = [];
 						break;
+					case 'party':
+					case 'disco':
+						argsParty = args[0];
+						args = [];
+						break;
 				}
+
+				var argsFiltered = [];
+
+				for (var i in args) {
+					var lightNumber = args[i];
+
+					if (!isNaN(lightNumber))
+						argsFiltered.push(lightNumber);
+				}
+
+				args = argsFiltered;
 
 				var commandGroup = true;
 				var commandLights = [];
@@ -73,7 +91,7 @@ module.exports = {
 					for (var i in args) {
 						var lightNumber = args[i];
 
-						if (!isNaN(lightNumber) && commandLights.indexOf(lightNumber) === -1)
+						if (commandLights.indexOf(lightNumber) === -1)
 							commandLights.push(Math.min(Math.max(Math.floor(lightNumber), 1), 100));
 					}
 
@@ -118,7 +136,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"on": true}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights turned on.';
 						}
@@ -129,7 +147,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"on": true}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' turned on.';
@@ -141,7 +159,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"on": false}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights turned off.';
 						}
@@ -152,7 +170,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"on": false}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' turned off.';
@@ -165,7 +183,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"effect": "colorloop"}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights turned to ' + cmd + ' mode.';
 						}
@@ -176,7 +194,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"effect": "colorloop"}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' turned to ' + cmd + ' mode.';
@@ -200,7 +218,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"bri": ' + bri + '}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights adjusted to ' + level + '% brightness.';
 						}
@@ -211,7 +229,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"bri": ' + bri + '}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' adjusted to ' + level + '% brightness.';
@@ -223,7 +241,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"alert": "select"}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights blinked.';
 						}
@@ -234,7 +252,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"alert": "select"}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' blinked.';
@@ -246,7 +264,7 @@ module.exports = {
 							commandMethod = 'PUT';
 							commandBody = '{"alert": "lselect"}';
 
-							sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+							sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 							actionMessage = 'All lights blinking for 15 seconds.';
 						}
@@ -257,7 +275,7 @@ module.exports = {
 								commandMethod = 'PUT';
 								commandBody = '{"alert": "lselect"}';
 
-								sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 							}
 
 							actionMessage = commandLightsSpan + ' blinking for 15 seconds.';
@@ -286,7 +304,7 @@ module.exports = {
 									commandMethod = 'PUT';
 									commandBody = '{"scene": "' + scene + '"}';
 
-									sendHue(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+									sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
 
 									actionMessage = 'Light ' + cmd + ' set to ' + profile + '.';
 
@@ -307,6 +325,117 @@ module.exports = {
 							}
 						});
 						break;
+					case 'party':
+					case 'disco':
+						var hueUrlStatus = 'https://www.meethue.com/api/getbridge?token=' + hueAccessToken + '&bridgeid=' + hueBridgeId;
+
+						request(hueUrlStatus, function (error, response, body) {
+							if (!error && response.statusCode === 200) {
+								var data = JSON.parse(body);
+								var lights = data.lights;
+
+								commandSlug = 'groups/0/action';
+								commandMethod = 'PUT';
+								commandBody = '{"on": true}';
+
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+									if (!error && response.statusCode === 200) {
+										var lightCycle = 0;
+										var hue;
+
+										var lightsSet = 0;
+
+										for (var i in lights) {
+											switch (lightCycle % 3) {
+												case 0:
+													hue = 0;
+													break;
+												case 1:
+													hue = 25500;
+													break;
+												case 2:
+													hue = 46920;
+													break;
+											}
+
+											commandSlug = 'lights/' + i + '/state';
+											commandMethod = 'PUT';
+											commandBody = '{"bri": 254, "sat": 254, "hue": ' + hue + '}';
+
+											sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+												if (!error && response.statusCode === 200) {
+													lightsSet++;
+
+													if (lightsSet === Object.keys(lights).length) {
+														commandSlug = 'groups/0/action';
+														commandMethod = 'PUT';
+														commandBody = '{"effect": "colorloop"}';
+
+														sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+															if (!error && response.statusCode === 200) {
+																global.huePartyActive = true;
+
+																hueParty(hueUrl, hueBridgeId, lights);
+																
+																actionMessage = 'Hue party started.';
+
+																rpc.emit('call', client, 'privmsg', [target, prefix + actionMessage]);
+															}
+														});
+													}
+												}
+											});
+
+											lightCycle++;
+										}
+									}
+								});
+							}
+
+							else {
+								actionMessage = 'Could not activate Hue party mode at this time.';
+
+								rpc.emit('call', client, 'privmsg', [target, prefix + actionMessage]);
+							}
+						});
+						break;
+					case 'reset':
+						global.huePartyActive = false;
+
+						commandSlug = 'groups/0/action';
+						commandMethod = 'PUT';
+						commandBody = '{"alert": "none"}';
+
+						sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+							if (!error && response.statusCode === 200) {
+								commandSlug = 'groups/0/action';
+								commandMethod = 'PUT';
+								commandBody = '{"effect": "none"}';
+
+								sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+									if (!error && response.statusCode === 200) {
+										commandSlug = 'groups/0/action';
+										commandMethod = 'PUT';
+										commandBody = '{"bri": 254, "hue": 0, "sat": 0}';
+
+										sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, function(error, response, body) {
+											if (!error && response.statusCode === 200) {
+												commandSlug = 'groups/0/action';
+												commandMethod = 'PUT';
+												commandBody = '{"on": true}';
+
+												sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+											}
+										});
+									}
+								});
+							}
+						});
+
+						
+						actionMessage = 'All lights reset.';
+
+						break;
 				}
 
 				switch(cmd) {
@@ -318,15 +447,14 @@ module.exports = {
 					case 'brightness':
 					case 'blink':
 					case 'pulse':
-					case 'party':
-					case 'disco':
+					case 'reset':
 						rpc.emit('call', client, 'privmsg', [target, prefix + actionMessage]);
 						break;
 				}
 			}
 		}
 	},
-	sendHue: function(client, target, prefix, hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody) {
+	sendHue: function(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody, callback) {
 		var requestBody = 'clipmessage={bridgeId: "' + hueBridgeId + '", clipCommand: {url: "/api/0/' + commandSlug + '", method: "' + commandMethod + '", body: ' + commandBody + '}}';
 
 		request.post(hueUrl, {
@@ -334,6 +462,24 @@ module.exports = {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			body: requestBody
+		}, function(error, response, body) {
+			if (typeof callback === 'function')
+				callback(error, response, body);
 		});
+	},
+	hueParty: function(hueUrl, hueBridgeId, lights) {
+		if (global.huePartyActive === true) {
+			for (var i in lights) {
+				var commandSlug = 'lights/' + i + '/state';
+				var commandMethod = 'PUT';
+				var commandBody = '{"alert": "lselect"}';
+
+				sendHue(hueUrl, hueBridgeId, commandSlug, commandMethod, commandBody);
+			}
+				
+			setTimeout(function() {
+				hueParty(hueUrl, hueBridgeId, lights);
+			}, 16000);
+		}
 	}
 };

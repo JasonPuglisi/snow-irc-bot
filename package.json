@@ -7,7 +7,7 @@
 	"bugs": "https://github.com/JasonPuglisi/snow-irc-bot/issues",
 	"license": "MIT",
 	"author": "Jason Puglisi <jason@puglisi.im> (https://www.puglisi.im/)",
-	"files": ["snow.js", "config.json", "save.json", "Readme.md", "License.txt"],
+	"files": ["snow.js", "config.json", "save.json", "README.md", "LICENSE.txt"],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/JasonPuglisi/snow-irc-bot.git"

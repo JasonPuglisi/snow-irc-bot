@@ -171,6 +171,20 @@
       "function": "plugIn"
     },
     {
+      "name": "Hue",
+      "settings": {
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "hue",
+          "settings": {}
+        }
+      ],
+      "minArgs": 0,
+      "function": "controlHue"
+    },
+    {
       "name": "EightBall",
       "settings": {},
       "triggers": [

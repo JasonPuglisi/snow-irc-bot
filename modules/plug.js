@@ -1,13 +1,16 @@
 module.exports = {
 	plugIn: function(client, network, channel, command, trigger, nickname, target, args, prefix) {
+		var plugEmail;
+		var plugPassword;
+
 		if (config.apis.plug !== undefined) {
-			var plugEmail = config.apis.plug.email;
-			var plugPassword = config.apis.plug.password;
+			plugEmail = config.apis.plug.email;
+			plugPassword = config.apis.plug.password;
 		}
 
 		if (plugEmail !== undefined && plugPassword !== undefined) {
 			var cmd = args[0];
-			var args = args.slice(1);
+			args = args.slice(1);
 
 			switch(cmd) {
 				case 'join':

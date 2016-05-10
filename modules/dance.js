@@ -17,7 +17,7 @@ module.exports = {
 			setTimeout(function() {
 				danceCount++;
 				sendDance(client, target, danceCount, limit);
-			}, (1500 / speed) * i);
+			}, (1000 / speed) * i);
 	},
 
 	sendDance: function(client, target, danceCount, limit) {

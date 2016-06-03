@@ -4,6 +4,7 @@
     "iconv": "iconv-lite",
     "factory": "irc-factory",
     "moment": "moment",
+    "plugapi": "plugapi",
     "request": "request",
     "parseXml": "xml2js"
   },

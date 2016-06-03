@@ -16,6 +16,7 @@
 		"iconv-lite": "*",
 		"irc-factory": "*",
 		"moment": "*",
+		"plugapi": "*",
 		"request": "*",
 		"xml2js": "*"
 	}

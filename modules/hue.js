@@ -294,8 +294,8 @@ module.exports = {
 								var scenes = data.scenes;
 
 								for (var i in scenes)
-									if (scenes[i].name.toLowerCase() === profile.toLowerCase() + ' on 0') {
-										profile = scenes[i].name.substring(0, scenes[i].name.lastIndexOf(' on 0'));
+									if (scenes[i].name.toLowerCase() === profile.toLowerCase()) {
+										profile = scenes[i].name;
 										scene = i;
 									}
 

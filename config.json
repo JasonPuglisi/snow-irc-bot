@@ -157,6 +157,20 @@
       "function": "sendYo"
     },
     {
+      "name": "Plug",
+      "settings": {
+        "admin": true
+      },
+      "triggers": [
+        {
+          "name": "plug",
+          "settings": {}
+        }
+      ],
+      "minArgs": 1,
+      "function": "plugIn"
+    },
+    {
       "name": "Hue",
       "settings": {
         "admin": true

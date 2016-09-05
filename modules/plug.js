@@ -149,6 +149,12 @@ module.exports = {
 						fs.writeFileSync(saveFile, JSON.stringify(save));
 					}
 					break;
+        case 'play':
+          plugBot.joinBooth();
+          break;
+        case 'stop':
+          plugBot.leaveBooth();
+          break;
 			}
 		}
 	}

@@ -78,6 +78,11 @@ module.exports = {
 							else
 								save.plug.advanceSuppressed = true;
 						});
+
+            plugBot.on('chat', function(data) {
+              if (save.plug.relay !== false)
+                rpc.emit('call', client, 'privmsg', [target, '[plug.dj/' + save.plug.room + '] ' + data.raw.un + ': ' + data.raw.message]); 
+            });
 					}
 
 					fs.writeFileSync(saveFile, JSON.stringify(save));
@@ -149,10 +154,28 @@ module.exports = {
 						fs.writeFileSync(saveFile, JSON.stringify(save));
 					}
 					break;
-        case 'play':
+				case 'relay':
+          var relayState = args[0];
+
+          switch(relayState) {
+            case 'on':
+              save.plug.relay = true;
+
+              rpc.emit('call', client, 'privmsg', [target, prefix + '[plug.dj] Chat relaying turned on']);
+              break;
+            case 'off':
+              save.plug.relay = false;
+
+              rpc.emit('call', client, 'privmsg', [target, prefix + '[plug.dj] Chat relaying turned off']);
+              break;
+          }
+
+          fs.writeFileSync(saveFile, JSON.stringify(save));
+					break;
+        case 'queue':
           plugBot.joinBooth();
           break;
-        case 'stop':
+        case 'dequeue':
           plugBot.leaveBooth();
           break;
 			}
